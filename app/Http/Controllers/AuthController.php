@@ -21,8 +21,7 @@ class AuthController extends Controller
 		public function __construct()
 		{
 				// $this->middleware('auth');
-				$this->middleware('jwt.auth');
-				// $this->middleware('jwt', ['except' => ['login']]);
+				 $this->middleware('jwt', ['except' => ['login']]);
 				
 		}
 	
@@ -89,7 +88,7 @@ class AuthController extends Controller
 		public function login(Request $request)
 		{
 			$myTTL = 43200;
-			JWTAuth::factory()->setTTL($muTTL);
+			JWTAuth::factory()->setTTL($myTTL);
 			  $validator = Validator::make($request->all('email', 'password'), [
             'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:6'
