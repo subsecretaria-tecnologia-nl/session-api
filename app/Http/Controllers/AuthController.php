@@ -38,11 +38,16 @@ class AuthController extends Controller
         return new JsonResponse([
 				'token' => $token,
 				'token_type'=> 'Bearer',
-				'expires_in' =>auth()->factory()->getTTL() * 60,
+				'expires_in' =>auth()->factory()->getTTL() * 60 * 24 * 30,
 				'user'=> auth()->user()->name
         ]);
 		}
-		
+		protected function onUnauthorized()
+    {
+        return new JsonResponse([
+            'message' => 'invalid_credentials'
+        ], Response::HTTP_UNAUTHORIZED);
+    }
 
 		protected function onJwtGenerationError()
     {
@@ -83,6 +88,8 @@ class AuthController extends Controller
     }
 		public function login(Request $request)
 		{
+			$myTTL = 43200;
+			JWTAuth::factory()->setTTL($muTTL);
 			  $validator = Validator::make($request->all('email', 'password'), [
             'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:6'
