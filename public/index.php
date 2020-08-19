@@ -13,6 +13,7 @@
 
 $app = require __DIR__.'/../bootstrap/app.php';
 
+
 /*
 |--------------------------------------------------------------------------
 | Run The Application
@@ -25,4 +26,7 @@ $app = require __DIR__.'/../bootstrap/app.php';
 |
 */
 
-$app->run();
+$request = Illuminate\Http\Request::capture();
+$app->run($request);
+// $app->run();
+// $app->run($app->make('request'));
