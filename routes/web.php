@@ -17,6 +17,8 @@
 $router->post('/signup','UsersController@signup');
 $router->post('/login','AuthController@login');
 
-$router->group(['middleware' => 'auth'], function () use ($router) {
-	$router->post('logout','AuthController@logout');
+$router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh']], function () use ($router) {
+	$router->post('/auth/logout','AuthController@logout');
+	
+
 });

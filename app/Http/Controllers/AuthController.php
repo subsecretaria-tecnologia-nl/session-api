@@ -10,6 +10,7 @@ use App\User;
 use App\Session;
 use Validator;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 // use Illuminate\Support\Facades\Auth;
 // use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -21,8 +22,7 @@ class AuthController extends Controller
 		public function __construct()
 		{
 				// $this->middleware('auth');
-				$this->middleware('jwt.auth');
-				// $this->middleware('jwt', ['except' => ['login']]);
+				$this->middleware('jwt', ['except' => ['login', 'logout']]);
 				
 		}
 	
@@ -77,7 +77,9 @@ class AuthController extends Controller
 			$start = $session->login_datetime;
 			$end = Carbon::now()->format('Y-m-d H:i:s');
 			$session->logout_datetime = $end;	
-			$session->session_lifetime = $this->period($start, $end);
+			$minutesDiff=$start->diffInMinutes($end);
+
+			$session->session_lifetime = $minutesDiff;
 			$session->save();
 
 			// $token =  $request->header('Authorization');
@@ -89,7 +91,7 @@ class AuthController extends Controller
 		public function login(Request $request)
 		{
 			$myTTL = 43200;
-			JWTAuth::factory()->setTTL($muTTL);
+			JWTAuth::factory()->setTTL($myTTL);
 			  $validator = Validator::make($request->all('email', 'password'), [
             'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:6'
