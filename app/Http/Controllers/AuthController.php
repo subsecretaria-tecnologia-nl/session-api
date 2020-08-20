@@ -56,7 +56,6 @@ class AuthController extends Controller
 						'status'=> 403,
         ]);
 		}
-
 		public function period($start, $end){
 			$period = CarbonPeriod::create($start, $end);
 
