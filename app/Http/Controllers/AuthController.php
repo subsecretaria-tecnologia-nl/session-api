@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use App\User;
 use App\Session;
 use Validator;
+use hisorange\BrowserDetect\Parser as Browser;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 // use Illuminate\Support\Facades\Auth;
@@ -22,20 +23,37 @@ class AuthController extends Controller
 		public function __construct()
 		{
 				// $this->middleware('auth');
-<<<<<<< HEAD
 				$this->middleware('jwt', ['except' => ['login', 'logout']]);
-=======
-				 $this->middleware('jwt', ['except' => ['login']]);
->>>>>>> 2429ef237116f6d0fcfb72b6e82bd6d1953e20ce
 				
+		}
+		protected function deviceType(){
+
+			if(Browser::isDesktop()){
+				return "Desktop";
+			}elseif(Browser::isMobile()){
+				return "Mobile";
+			}elseif(Browser::isTablet()){
+				return "Tablet";
+			}else{
+				return "Unknown";
+			}
+
+		}
+
+		protected function browserType(){
+			return $browser = Browser::browserFamily();
+
 		}
 	
 		protected function onAuthorized($token)
     {
+				$browser = $this->browserType();
+				$device = $this->deviceType();
 				$session = new Session;
 				$session->user_id = auth()->user()->id;
-				$session->login_datetime = Carbon::now()->format('Y-m-d H:i:s');			
-
+				$session->device_type = $device;
+				$session->browser_type = $browser;
+				$session->login_datetime = Carbon::now()->format('Y-m-d H:i:s');		
 				$session->save();
 
 
@@ -93,7 +111,6 @@ class AuthController extends Controller
     }
 		public function login(Request $request)
 		{
-			$myTTL = 43200;
 			JWTAuth::factory()->setTTL($myTTL);
 			  $validator = Validator::make($request->all('email', 'password'), [
             'email' => 'required|string|email|max:255',
@@ -115,6 +132,20 @@ class AuthController extends Controller
 
 				return $this->onAuthorized($token);
 		}
+
+		public function refresh()
+    {
+        $token = JWTAuth::parseToken();
+
+        $newToken = $token->refresh();
+
+        return new JsonResponse([
+            'message' => 'token_refreshed',
+            'data' => [
+                'token' => $newToken
+            ]
+        ]);
+    }
 
 
 	

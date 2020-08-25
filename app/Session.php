@@ -17,7 +17,9 @@ class Session extends Model
 			'logout_datetime',
 			'token_type',
 			'session_lifetime',
-			'type_platform'
+			'device_type',
+			'browser_type'
+
     ];
 
     protected $hidden = ['created_at', 'updated_at'];

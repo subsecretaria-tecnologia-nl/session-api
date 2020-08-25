@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\Hash;
 use App\User;
 use Illuminate\Support\Str;
 use Validator;
+use Carbon\Carbon;
+use hisorange\BrowserDetect\Parser as Browser;
 
 class UsersController extends Controller
 {
-
 
 
     public function signup(Request $request)

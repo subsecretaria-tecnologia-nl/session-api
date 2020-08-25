@@ -21,8 +21,8 @@ class CreateSessionsTable extends Migration
 						$table->dateTime('logout_datetime');
 						$table->string('token_type');
 						$table->string('session_lifetime');
-						$table->string('type_platform');
-						$table->timestamps();
+						$table->string('device_type');
+						$table->string('browser_type');
 
         });
     }
