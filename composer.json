@@ -7,7 +7,6 @@
     "require": {
         "php": "^7.2.5",
         "cbschuld/browser.php": "^1.9",
-        "dusterio/lumen-passport": "^0.2.19",
         "flipbox/lumen-generator": "^7.0",
         "hisorange/browser-detect": "^4.2",
         "illuminate/session": "^7.25",
