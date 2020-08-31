@@ -26,6 +26,8 @@ class AuthController extends Controller
 				$this->middleware('jwt', ['except' => ['login', 'logout']]);
 				
 		}
+
+	
 		protected function deviceType(){
 
 			if(Browser::isDesktop()){
@@ -93,12 +95,21 @@ class AuthController extends Controller
     {
 
 			$user_id = auth()->user()->id;
-			$session = Session::find($user_id);
+			$browser = $this->browserType();
+			$device = $this->deviceType();
 
-			$start = $session->login_datetime;
+			$session = Session::select(['*'])	
+								->where('user_id', $user_id)
+								->where('device_type', $device)
+								->where('browser_type', $browser)->first();
+
+
+
+			$start = Carbon::parse($session->login_datetime);
 			$end = Carbon::now()->format('Y-m-d H:i:s');
 			$session->logout_datetime = $end;	
-			$minutesDiff=$start->diffInMinutes($end);
+			$minutesDiff=$start->diffForHumans($end);
+			
 
 			$session->session_lifetime = $minutesDiff;
 			$session->save();
