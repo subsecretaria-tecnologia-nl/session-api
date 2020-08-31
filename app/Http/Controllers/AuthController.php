@@ -111,6 +111,7 @@ class AuthController extends Controller
     }
 		public function login(Request $request)
 		{
+			$myTTL = 43200;
 			JWTAuth::factory()->setTTL($myTTL);
 			  $validator = Validator::make($request->all('email', 'password'), [
             'email' => 'required|string|email|max:255',
