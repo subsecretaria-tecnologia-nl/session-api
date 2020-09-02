@@ -22,6 +22,7 @@ class CreateInformationUsersTable extends Migration
 						$table->string('modified_variables');
 						$table->string('device_type');
 						$table->string('browser_type');
+						$table->tinyInteger('activo')->default(1);
             $table->timestamps();
         });
     }

@@ -10,6 +10,7 @@ use App\Session;
 use App\Information;
 use Illuminate\Support\Str;
 use Validator;
+use App\Http\Controllers\AuthController;
 use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -21,13 +22,12 @@ class SubUsersController extends Controller
  
     public function __construct()
     {
+				$result = (new AuthController)->method();
 				// $this->user = JWTAuth::parseToken()->authenticate();
 				$this->middleware('auth:api', ['except' => ['login','logout']]);
     }
 
-		protected function informationUsers($object){
-			$information = Information::create($object);
-		}
+
 
 
     public function signupSubUser(Request $request)
@@ -66,6 +66,15 @@ class SubUsersController extends Controller
     
         if ($sub_user->save()){
 					$token = $user->api_token;
+					$information = Information::create([
+						'user_id' => auth()->user()->id,
+						'action_date'=>Carbon::now()->format('Y-m-d H:i:s'),
+						'description'=>'Crear sub usuario',	
+						'modified_variables'=>"",
+						'device_type'=>$result->deviceType(),
+						'browser_type'=>$result->browserType()
+					]);
+					$information->save();
 
 					return response([
 						'token' => $token,
@@ -93,6 +102,15 @@ class SubUsersController extends Controller
 				$subusers = SubUser::whereIn('id', $sub)->get();
 
 				if (count((array)$subusers) > 0) {
+					$information = Information::create([
+						'user_id' => auth()->user()->id,
+						'action_date'=>Carbon::now()->format('Y-m-d H:i:s'),
+						'description'=>'Obtener sub usuario',	
+						'modified_variables'=>"",
+						'device_type'=>$result->deviceType(),
+						'browser_type'=>$result->browserType()
+					]);
+					$information->save();
 						return response()->json(['status' => 'success', 'user' => $subusers]);
 				} else {
 						return response()->json(['status' => 'fail'], 401);
@@ -113,6 +131,15 @@ class SubUsersController extends Controller
 			$user = User::find($request->id);
 		
 			if (!$user) {
+				$information = Information::create([
+					'user_id' => auth()->user()->id,
+					'action_date'=>Carbon::now()->format('Y-m-d H:i:s'),
+					'description'=>'Modificar sub usuario',	
+					'modified_variables'=>"",
+					'device_type'=>$result->deviceType(),
+					'browser_type'=>$result->browserType()
+				]);
+				$information->save();
 				return response()->json([
 						'success' => false,
 						'message' => 'Sorry, subuser cannot be found'
@@ -130,7 +157,7 @@ class SubUsersController extends Controller
 					return response()->json([
 							'success' => false,
 							'message' => 'Sorry, subuser could not be updated'
-					], 500);
+					]);
 			}
 		}
 		public function getSessionSubUser(Request $request){
@@ -149,6 +176,15 @@ class SubUsersController extends Controller
 		
 
 			if (!$sessions_actived) {
+				$information = Information::create([
+					'user_id' => auth()->user()->id,
+					'action_date'=>Carbon::now()->format('Y-m-d H:i:s'),
+					'description'=>'Obtener sesión sub usuario',	
+					'modified_variables'=>"",
+					'device_type'=>$result->deviceType(),
+					'browser_type'=>$result->browserType()
+				]);
+				$information->save();
 				return response()->json([
 						'success' => false,
 						'message' => 'Sorry, user cannot be found'
@@ -163,11 +199,11 @@ class SubUsersController extends Controller
 			
 			$user = User::find($request->id);
 		
-			if (!$user) {
+			if (!$user) {				
 				return response()->json([
 						'success' => false,
 						'message' => 'Sorry, subuser cannot be found'
-				], 400);
+				]);
 			}
 
 			$updated = $user->update([
@@ -175,6 +211,15 @@ class SubUsersController extends Controller
 			]);
 
 			if ($updated->save()) {
+				$information = Information::create([
+					'user_id' => auth()->user()->id,
+					'action_date'=>Carbon::now()->format('Y-m-d H:i:s'),
+					'description'=>'Modificar estatus (activar/desactivar) sub usuario',	
+					'modified_variables'=>"",
+					'device_type'=>$result->deviceType(),
+					'browser_type'=>$result->browserType()
+				]);
+				$information->save();
 					return response()->json([
 							'success' => true,
 							'status'=> 200
@@ -182,8 +227,9 @@ class SubUsersController extends Controller
 			} else {
 					return response()->json([
 							'success' => false,
-							'message' => 'Sorry, subuser could not be updated'
-					], 500);
+							'message' => 'Sorry, subuser could not be updated',
+							'status'=>401
+					]);
 			}
 
 		}

@@ -27,7 +27,7 @@ class AuthController extends Controller
 
 				
 		}
-		protected function deviceType(){
+		public function deviceType(){
 
 			if(Browser::isDesktop()){
 				return "Desktop";
@@ -41,7 +41,7 @@ class AuthController extends Controller
 
 		}
 
-		protected function browserType(){
+		public function browserType(){
 			return $browser = Browser::browserFamily();
 
 		}

@@ -21,7 +21,7 @@ class UsersController extends Controller
     {
 				// $this->user = JWTAuth::parseToken()->authenticate();
 
-				$this->middleware('auth:api', ['except' => ['login','logout']]);
+				$this->middleware('auth:api', ['except' => ['login','logout', 'signup']]);
     }
 
 
