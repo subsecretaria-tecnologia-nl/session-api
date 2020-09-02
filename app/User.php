@@ -17,7 +17,7 @@ class User extends Model implements
 
 
     protected $fillable = [
-        'name', 'email', 'password', 'api_token'
+        'id', 'name', 'email', 'password', 'api_token', 'rol_id'
     ];
 
    
@@ -35,9 +35,20 @@ class User extends Model implements
 				return [];
 		}
 
-		public function sesiones()
+		public function sessions()
     {
         return $this->hasMany('App\Session');
+		}
+
+		public function subusers()
+    {
+				return $this->hasMany('App\SubUser', 'id_user_created_by', 'id');
+		
     }
+
+
+
+	
+		
 		
 }

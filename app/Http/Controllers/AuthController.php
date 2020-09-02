@@ -23,7 +23,8 @@ class AuthController extends Controller
 		public function __construct()
 		{
 				// $this->middleware('auth');
-				$this->middleware('jwt', ['except' => ['login', 'logout']]);
+				$this->middleware('auth:api', ['except' => ['login','logout']]);
+
 				
 		}
 		protected function deviceType(){
@@ -61,7 +62,8 @@ class AuthController extends Controller
 				'token' => $token,
 				'token_type'=> 'Bearer',
 				'expires_in' =>auth()->factory()->getTTL() * 60 * 24 * 30,
-				'user'=> auth()->user()->name
+				'user'=> auth()->user()->name,
+				'status'=> 200,
         ]);
 		}
 		protected function onUnauthorized()
@@ -114,7 +116,7 @@ class AuthController extends Controller
 			JWTAuth::factory()->setTTL($myTTL);
 			  $validator = Validator::make($request->all('email', 'password'), [
             'email' => 'required|string|email|max:255',
-            'password' => 'required|string|min:6'
+            'password' => 'required|string|min:8'
         ]);
 
 				if ($validator->fails()) {
@@ -135,15 +137,25 @@ class AuthController extends Controller
 
 		public function refresh()
     {
-        $token = JWTAuth::parseToken();
+			return $this->respondWithToken(auth()->refresh());
+        // $token = JWTAuth::parseToken();
 
-        $newToken = $token->refresh();
+        // $newToken = $token->refresh();
 
-        return new JsonResponse([
-            'message' => 'token_refreshed',
-            'data' => [
-                'token' => $newToken
-            ]
+        // return new JsonResponse([
+        //     'message' => 'token_refreshed',
+        //     'data' => [
+        //         'token' => $newToken
+        //     ]
+        // ]);
+		}
+		protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+						'expires_in' => auth()->factory()->getTTL() * 60,
+						'status'=> 200,
         ]);
     }
 
