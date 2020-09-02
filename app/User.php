@@ -1,32 +1,54 @@
 <?php
 
 namespace App;
-
 use Illuminate\Auth\Authenticatable;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Database\Eloquent\Model;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Laravel\Lumen\Auth\Authorizable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 
-class User extends Model implements AuthenticatableContract, AuthorizableContract
+class User extends Model implements
+    AuthenticatableContract,
+		AuthorizableContract,
+		JWTSubject
 {
     use Authenticatable, Authorizable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
+
     protected $fillable = [
-        'name', 'email',
+        'id', 'name', 'email', 'password', 'api_token', 'rol_id'
     ];
 
-    /**
-     * The attributes excluded from the model's JSON form.
-     *
-     * @var array
-     */
+   
     protected $hidden = [
-        'password',
-    ];
+        'password', 'remember_token'
+		];
+
+		
+		public function getJWTIdentifier()
+		{
+				return $this->getKey();
+		}
+		public function getJWTCustomClaims()
+		{
+				return [];
+		}
+
+		public function sessions()
+    {
+        return $this->hasMany('App\Session');
+		}
+
+		public function subusers()
+    {
+				return $this->hasMany('App\SubUser', 'id_user_created_by', 'id');
+		
+    }
+
+
+
+	
+		
+		
 }

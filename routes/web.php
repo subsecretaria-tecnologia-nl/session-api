@@ -11,6 +11,33 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+		
+// $router->get('/', function () use ($router) {
+	// return $router->app->version();
+// });
+$router->post('/signup','UsersController@signup');
+$router->post('/login','AuthController@login');
+$router->patch('/refresh','AuthController@refresh');
+
+
+
+$router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh'], 'prefix'=>'auth'], function () use ($router) {
+	$router->post('/logout','AuthController@logout');
+	$router->post('/getUser','UsersController@getUser');
+	$router->post('/editUser','UsersController@editUser');
+	$router->post('/getSessionUser','UsersController@getSessionUser');
+	$router->post('/signupSubUser','SubUsersController@signupSubUser');
+	$router->post('/getSubUser','SubUsersController@getSubUser');
+	$router->post('/editSubUser','SubUsersController@editSubUser');
+	$router->post('/statusSubUser','SubUsersController@statusSubUser');
+	$router->post('/getSessionSubUser','SubUsersController@getSessionSubUser');
+
+
+
+
+
+
+
+
+
 });
