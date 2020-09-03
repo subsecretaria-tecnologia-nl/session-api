@@ -11,10 +11,7 @@
 |
 */
 
-		
-// $router->get('/', function () use ($router) {
-	// return $router->app->version();
-// });
+
 $router->post('/signup','UsersController@signup');
 $router->post('/login','AuthController@login');
 $router->patch('/refresh','AuthController@refresh');
