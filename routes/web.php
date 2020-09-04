@@ -16,21 +16,26 @@
 	// return $router->app->version();
 // });
 $router->post('/signup','UsersController@signup');
-$router->post('/login','AuthController@login');
-$router->patch('/refresh','AuthController@refresh');
+$router->get('/login','AuthController@login');
+$router->get('/refresh','AuthController@refresh');
 
 
 
 $router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh'], 'prefix'=>'auth'], function () use ($router) {
-	$router->post('/logout','AuthController@logout');
-	$router->post('/getUser','UsersController@getUser');
-	$router->post('/editUser','UsersController@editUser');
-	$router->post('/getSessionUser','UsersController@getSessionUser');
+	$router->get('/logout','AuthController@logout');
+	$router->get('user/me','UsersController@getUser');
+	$router->put('/user/me/edit','UsersController@editUser');
+	$router->get('/user/me/sessions','UsersController@getSessionUser');
 	$router->post('/signupSubUser','SubUsersController@signupSubUser');
-	$router->post('/getSubUser','SubUsersController@getSubUser');
-	$router->post('/editSubUser','SubUsersController@editSubUser');
+
+	$router->post('/users','SubUsersController@getSubUsers');
+	//edit subuser
+	$router->put('/users/{id}','SubUsersController@editSubUser');
+	//get subuser
+	$router->post('/users/{id}','SubUsersController@getSubUser');
+	
 	$router->post('/statusSubUser','SubUsersController@statusSubUser');
-	$router->post('/getSessionSubUser','SubUsersController@getSessionSubUser');
+	$router->get('/user/{id}/sessions','SubUsersController@getSessionSubUser');
 
 
 

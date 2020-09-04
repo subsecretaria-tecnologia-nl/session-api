@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\SubUser;
+use App\Models\Session;
+use App\Models\Information;
+use Carbon\Carbon;
+use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\User;
-use App\SubUser;
-use App\Session;
-use App\Information;
 use Illuminate\Support\Str;
-use Validator;
-use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use hisorange\BrowserDetect\Parser as Browser;
+use Validator;
+
 
 class SubUsersController extends Controller
 {
@@ -21,7 +22,6 @@ class SubUsersController extends Controller
  
     public function __construct()
     {
-				// $this->user = JWTAuth::parseToken()->authenticate();
 				$this->middleware('auth:api', ['except' => ['login','logout']]);
     }
 
@@ -84,44 +84,63 @@ class SubUsersController extends Controller
 				
 		} 
 
-		public function getSubUser(Request $request)
+		public function getSubUser(Request $request, $id)
 		{
-				$user = JWTAuth::user();
+			
+				$subuser = User::where('id', $id)->get();
 
-				$sub = $user->subusers()->pluck('id')->toArray();		
-
-				$subusers = SubUser::whereIn('id', $sub)->get();
-
-				if (count((array)$subusers) > 0) {
-						return response()->json(['status' => 'success', 'user' => $subusers]);
+				if (count((array)$subuser) > 0) {
+						return response()->json(['status' => 'success', 'user' => $subuser]);
 				} else {
 						return response()->json(['status' => 'fail'], 401);
 				}
 		}
 
-		public function editSubUser(Request $request){
-		
+		public function editSubUser(Request $request, $id){	
+			
+			$user = User::where('id', $id)
+			->where('name', '=', $request->name)
+			->where('email', '<>', $request->email)->first();
+			if ($user == true) {
+				return response()->json(['error'=>'User already exists', 'status'=>401]);
+			}
+			$password = base64_decode($request->password);
+
+			$request->merge([
+				'password' => $password,
+			]);
 			
 			$validator = Validator::make($request->all(), [
 				'email' => 'required|string|email|max:255',
+				'name'=>'string',
+				'password' => ['required',
+				 'string',
+				 'min:8',
+				 'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/',
+				 ]
 			]);
 
-			if ($validator->fails()) {
-					return response()->json(['error'=>$validator->errors()], 401);
-			}
-
-
-
-			$user = User::find($request->id);
+			$subuser = User::find($id);
 		
-			if (!$user) {
+			if (!$subuser) {
+				$information = Information::create([
+					'user_id' => auth()->user()->id,
+					'action_date'=>Carbon::now()->format('Y-m-d H:i:s'),
+					'description'=>'Modificar sub usuario',	
+					'modified_variables'=>"",
+					'device_type'=>$result->deviceType(),
+					'browser_type'=>$result->browserType()
+				]);
+				$information->save();
 				return response()->json([
 						'success' => false,
 						'message' => 'Sorry, subuser cannot be found'
 				], 400);
 			}
+			$input = $request->all();
+			$input['password'] = Hash::make($input['password']);	
 
-			$updated = $user->fill($request->all())->save();
+			$updated = $user->fill($input)->save();
 
 			if ($updated) {
 					return response()->json([
@@ -131,11 +150,12 @@ class SubUsersController extends Controller
 			} else {
 					return response()->json([
 							'success' => false,
+							"status"=>401,
 							'message' => 'Sorry, subuser could not be updated'
-					], 500);
+					] );
 			}
 		}
-		public function getSessionSubUser(Request $request){
+		public function getSessionSubUser($id){
 
 				$user = JWTAuth::user();
 

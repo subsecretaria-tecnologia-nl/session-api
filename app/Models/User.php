@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 use Illuminate\Auth\Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Laravel\Lumen\Auth\Authorizable;
@@ -37,12 +37,12 @@ class User extends Model implements
 
 		public function sessions()
     {
-        return $this->hasMany('App\Session');
+        return $this->hasMany('App\Models\Session');
 		}
 
 		public function subusers()
     {
-				return $this->hasMany('App\SubUser', 'id_user_created_by', 'id');
+				return $this->hasMany('App\Models\SubUser', 'id_user_created_by', 'id');
 		
     }
 

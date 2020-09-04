@@ -2,35 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Session;
+use Carbon\Carbon;
+use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
-use App\User;
-use App\Session;
-use Validator;
-use hisorange\BrowserDetect\Parser as Browser;
-use Carbon\Carbon;
-use Carbon\CarbonPeriod;
-// use Illuminate\Support\Facades\Auth;
-// use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Validator;
+use Config;
 
 class AuthController extends Controller
 {
 
 		public function __construct()
 		{
-				// $this->middleware('auth');
-				$this->middleware('auth:api', ['except' => ['login','logout']]);
-
-				
+				$this->middleware('auth:api', ['except' => ['login','logout']]);	
 		}
 
 	
 		protected function deviceType(){
-
 			if(Browser::isDesktop()){
 				return "Desktop";
 			}elseif(Browser::isMobile()){
@@ -43,7 +37,8 @@ class AuthController extends Controller
 
 		}
 
-		protected function browserType(){
+		protected function browserType()
+		{
 			return $browser = Browser::browserFamily();
 
 		}
@@ -82,16 +77,7 @@ class AuthController extends Controller
 						'status'=> 403,
         ]);
 		}
-		public function period($start, $end){
-			$period = CarbonPeriod::create($start, $end);
-
-			foreach ($period as $date) {
-				echo $date->format('Y-m-d');
-						
-			}
-			return $period->toArray();
-
-		}
+		
 
 		public function logout()
     {
@@ -116,33 +102,46 @@ class AuthController extends Controller
 			$session->session_lifetime = $minutesDiff;
 			$session->save();
 
-			// $token =  $request->header('Authorization');
-			// $this->jwt->parseToken()->invalidate();
-			// 		return response()->json(['message' => 'Successfully logged out']);
-        auth()->logout();
-        return response()->json(['message' => 'Successfully logged out']);
+			auth()->logout();
+			return response()->json(['message' => 'Successfully logged out']);
     }
 		public function login(Request $request)
 		{
+			
+			$data = explode(' ', $request->header('Authorization'))[1];
+		
+			$decoded = base64_decode($data);
+			$list = list($username,$password) = explode(":",$decoded);
+
 			$myTTL = 43200;
 			JWTAuth::factory()->setTTL($myTTL);
-			  $validator = Validator::make($request->all('email', 'password'), [
-            'email' => 'required|string|email|max:255',
-            'password' => 'required|string|min:8'
-        ]);
 
-				if ($validator->fails()) {
-				    return response()->json(['error'=>$validator->errors()], 401);
-				}
-				$credentials = $request->only('email', 'password');
+			$r = new Request([
+				"email" => $username,
+				"password" => $password
+			]);
+				
+			$validator = Validator::make($r->all("email", "password"), [
+					'email' => 'required|string|email|max:255',
+					'password' => ['required',
+					 'string',
+					 'min:8',
+					 'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/',
+					 ]
+			]);
 
-				try {
-					if (!$token = JWTAuth::attempt($credentials)) {
-						return $this->onUnauthorized();
-				}
-				} catch (JWTException $e) {
-					return $this->onJwtGenerationError();
-				}
+			if ($validator->fails()) {
+					return response()->json(['error'=>$validator->errors()], 401);
+			}
+			
+
+			try {
+				if (!$token = JWTAuth::attempt(array("email" => $username, "password" => $password))) {
+					return $this->onUnauthorized();
+			}
+			} catch (JWTException $e) {
+				return $this->onJwtGenerationError();
+			}
 
 				return $this->onAuthorized($token);
 		}
@@ -150,16 +149,7 @@ class AuthController extends Controller
 		public function refresh()
     {
 			return $this->respondWithToken(auth()->refresh());
-        // $token = JWTAuth::parseToken();
-
-        // $newToken = $token->refresh();
-
-        // return new JsonResponse([
-        //     'message' => 'token_refreshed',
-        //     'data' => [
-        //         'token' => $newToken
-        //     ]
-        // ]);
+    
 		}
 		protected function respondWithToken($token)
     {

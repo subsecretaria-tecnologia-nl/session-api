@@ -1,8 +1,8 @@
 <?php
 
 
-namespace App;
-use App\Session;
+namespace App\Models;
+use App\Models\Session;
 
 use Illuminate\Database\Eloquent\Model;
 
