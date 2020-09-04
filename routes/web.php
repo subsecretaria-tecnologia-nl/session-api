@@ -23,17 +23,13 @@ $router->get('/refresh','AuthController@refresh');
 
 $router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh'], 'prefix'=>'auth'], function () use ($router) {
 	$router->get('/logout','AuthController@logout');
-	$router->get('user/me','UsersController@getUser');
-	$router->put('/user/me/edit','UsersController@editUser');
+	$router->get('/user/me','UsersController@getUser');
+	$router->put('/user/me','UsersController@editUser');
 	$router->get('/user/me/sessions','UsersController@getSessionUser');
 	$router->post('/signupSubUser','SubUsersController@signupSubUser');
-
 	$router->post('/users','SubUsersController@getSubUsers');
-	//edit subuser
 	$router->put('/users/{id}','SubUsersController@editSubUser');
-	//get subuser
-	$router->post('/users/{id}','SubUsersController@getSubUser');
-	
+	$router->post('/users/{id}','SubUsersController@getSubUser');	
 	$router->post('/statusSubUser','SubUsersController@statusSubUser');
 	$router->get('/user/{id}/sessions','SubUsersController@getSessionSubUser');
 

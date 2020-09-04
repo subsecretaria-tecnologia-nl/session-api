@@ -25,11 +25,6 @@ class SubUsersController extends Controller
 				$this->middleware('auth:api', ['except' => ['login','logout']]);
     }
 
-		protected function informationUsers($object){
-			$information = Information::create($object);
-		}
-
-
     public function signupSubUser(Request $request)
     {
 
@@ -84,10 +79,10 @@ class SubUsersController extends Controller
 				
 		} 
 
-		public function getSubUser(Request $request, $id)
+		public function getSubUser(Request $request)
 		{
-			
-				$subuser = User::where('id', $id)->get();
+		
+				$subuser = User::where('id', $request->id)->get();
 
 				if (count((array)$subuser) > 0) {
 						return response()->json(['status' => 'success', 'user' => $subuser]);
@@ -96,9 +91,9 @@ class SubUsersController extends Controller
 				}
 		}
 
-		public function editSubUser(Request $request, $id){	
+		public function editSubUser(Request $request){	
 			
-			$user = User::where('id', $id)
+			$user = User::where('id', $request->id)
 			->where('name', '=', $request->name)
 			->where('email', '<>', $request->email)->first();
 			if ($user == true) {
@@ -120,7 +115,7 @@ class SubUsersController extends Controller
 				 ]
 			]);
 
-			$subuser = User::find($id);
+			$subuser = User::find($request->id);
 		
 			if (!$subuser) {
 				$information = Information::create([

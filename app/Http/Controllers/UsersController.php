@@ -87,7 +87,6 @@ class UsersController extends Controller
 			if ($user == true) {
 				return response()->json(['error'=>'User already exists', 'status'=>401]);
 			}
-			$password = base64_decode($request->password);
 
 			$request->merge([
 				'password' => $password,
