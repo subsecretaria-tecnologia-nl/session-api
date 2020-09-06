@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use App\User;
-use App\Session;
-use Illuminate\Support\Str;
-use Validator;
+use App\Models\User;
+use App\Models\Session;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use hisorange\BrowserDetect\Parser as Browser;
+use Validator;
 
 class UsersController extends Controller
 {
@@ -19,22 +19,25 @@ class UsersController extends Controller
  
     public function __construct()
     {
-				// $this->user = JWTAuth::parseToken()->authenticate();
-
-				$this->middleware('auth:api', ['except' => ['login','logout']]);
-    }
-
-
-
+				$this->middleware('auth:api', ['except' => ['login','logout','signup']]);
+		}
+	
     public function signup(Request $request)
     {
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|string|min:8'
-        ]);
-
+				$user = User::where('name', '=', $request->name)->where('email', '<>', $request->email)->first();
+				if ($user == true) {
+					return response()->json(['error'=>'User already exists', 'status'=>401]);
+				}
+	
+				$validator = Validator::make($request->all(), [
+					'email' => 'required|string|email|max:255',
+					'name'=>'string',
+					'password' => ['required',
+					'string',
+					'min:8',
+					'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/',
+					]
+				]);
         if($validator->fails()){
 						return response([
 							'message' => 'Validation errors', 
@@ -44,17 +47,29 @@ class UsersController extends Controller
 
         $input = $request->all();
 				$input['password'] = Hash::make($input['password']);
-				$input['api_token'] = Str::random(150);
 				$input['rol_id'] = 2;
 				$user = User::create($input);
-				
-				$token = $user->api_token;
 
-        return response([
-					'token' => $token, 
-					'message' => 'Cuenta creada', 
-					'status' => 200
-					]);
+				$token = auth()->login($user);
+				$seconds = auth()->factory()->getTTL() * 60 * 24 * 30;
+				$date = Carbon::now()->addSeconds($seconds)->format('Y-m-d H:i:s');
+
+				return response()->json([
+					'status' => 200,
+					'acount'=>[
+						'name'=>$user->name,
+						'email'=>$user->email,
+						'access_token'=>[
+							'token'=>$token,
+							'type'=>'bearer',
+							'valid_until'=>[
+								'date'=>$date,
+								'seconds' =>$seconds,
+							]
+						]
+					]
+			]);
+				
 		} 
 
 		public function getUser(Request $request)
@@ -67,29 +82,45 @@ class UsersController extends Controller
 				}
 		}
 
-		public function editUser(Request $request){		
+		public function editUser(Request $request){
+			$user = User::where('name', '=', $request->name)->where('email', '<>', $request->email)->first();
+			if ($user == true) {
+				return response()->json(['error'=>'User already exists', 'status'=>401]);
+			}
+
+			$request->merge([
+				'password' => $password,
+			]);
 			
 			$validator = Validator::make($request->all(), [
 				'email' => 'required|string|email|max:255',
-		]);
+				'name'=>'string',
+				'password' => ['required',
+				 'string',
+				 'min:8',
+				 'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/',
+				 ]
+			]);
 
-		if ($validator->fails()) {
-				return response()->json(['error'=>$validator->errors()], 401);
-		}
+			if ($validator->fails()) {
+					return response()->json(['error'=>$validator->errors()], 401);
+			}
 
 			$id = auth()->user()->id;
 
 			$user = User::find($id);
 
-		
 			if (!$user) {
 				return response()->json([
 						'success' => false,
 						'message' => 'Sorry, user cannot be found'
 				], 400);
 			}
+			$input = $request->all();
+			$input['password'] = Hash::make($input['password']);
+		
 
-			$updated = $user->fill($request->all())->save();
+			$updated = $user->fill($input)->save();
 
 			if ($updated) {
 					return response()->json([
@@ -106,18 +137,19 @@ class UsersController extends Controller
 		public function getSessionUser(){
 			$id = auth()->user()->id;
 
-			$sessions_actived = User::where('id', $id)->with(['sessions' => function ($q) {
+			$sessions = User::where('id', $id)->with(['sessions' => function ($q) {
 				$q->sessionsact();
-			}])->get();
+			}])->get()->toArray();
+			$sessionsActived = $sessions[0]["sessions"];
 
-			if (!$sessions_actived) {
+			if (!$sessionsActived) {
 				return response()->json([
 						'success' => false,
 						'message' => 'Sorry, user  cannot be found'
 				], 400);
 		}
 
-			return $sessions_actived;
+			return $sessionsActived;
 		}
 
 	
