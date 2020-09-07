@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ShowableException;
 use App\Models\User;
 use App\Models\Session;
 use Carbon\Carbon;
@@ -74,9 +75,9 @@ class UsersController extends Controller
 	public function getUser(Request $request){
 		$user = JWTAuth::user();
 		if (count((array)$user) > 0) {
-			return response()->json(['status' => 'success', 'user' => $user]);
+			return [ "user" => $user ];
 		} else {
-			return response()->json(['status' => 'fail'], 401);
+			throw new ShowableException(401, "Unauthorized");
 		}
 	}
 
@@ -143,6 +144,7 @@ class UsersController extends Controller
 		$sessionsActived = $sessions[0]["sessions"];
 
 		if (!$sessionsActived) {
+			throw new ShowableException (404, "User cannot be found.");
 			return response()->json([
 				'success' => false,
 				'message' => 'Sorry, user  cannot be found'

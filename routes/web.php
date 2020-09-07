@@ -6,15 +6,18 @@ $router->get('/refresh','AuthController@refresh');
 
 $router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh']], function () use ($router) {
 	$router->group(["prefix" => "users"], function() use ($router){
-		$router->get('/me','UsersController@getUser');
-		$router->get('/me/sessions','UsersController@getSessionUser');
-		$router->get('/user/{id}/sessions','SubUsersController@getSessionSubUser');
+		$router->group(["prefix" => "me"], function() use ($router){
+			$router->get('/','UsersController@getUser');
+			$router->get('/sessions','UsersController@getSessionUser');
+		});
+		
+		$router->get('/{id}/sessions','SubUsersController@getSessionSubUser');
 
-		$router->post('/users','SubUsersController@getSubUsers');
-		$router->post('/users/{id}','SubUsersController@getSubUser');	
+		$router->post('/','SubUsersController@getSubUsers');
+		$router->post('/{id}','SubUsersController@getSubUser');	
 		
 		$router->put('/me','UsersController@editUser');
-		$router->put('/users/{id}','SubUsersController@editSubUser');
+		$router->put('/{id}','SubUsersController@editSubUser');
 	});
 
 	$router->get('/logout','AuthController@logout');
