@@ -6,7 +6,12 @@
     "type": "project",
     "require": {
         "php": "^7.2.5",
-        "laravel/lumen-framework": "^7.0"
+        "cbschuld/browser.php": "^1.9",
+        "flipbox/lumen-generator": "^7.0",
+        "hisorange/browser-detect": "^4.2",
+        "illuminate/session": "^7.25",
+        "laravel/lumen-framework": "^7.0",
+        "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.9.1",
@@ -36,6 +41,8 @@
     "prefer-stable": true,
     "scripts": {
         "start" : "php -S localhost:8000 -t public",
+        "test" : "phpunit",
+        "test-coverage" : "phpunit --coverage-text",
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ]
