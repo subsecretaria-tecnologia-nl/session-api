@@ -29,6 +29,6 @@ jobs:
         DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
     - name: Coveralls
-      uses: coverallsapp/github-action@master
+      uses: php-coveralls/php-coveralls@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
