@@ -35,10 +35,4 @@ $router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh'], 'prefix'=>'auth'],
 
 
 
-
-
-
-
-
-
 });
