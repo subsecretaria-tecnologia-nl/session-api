@@ -42,7 +42,7 @@
     "scripts": {
         "start" : "php -S localhost:8000 -t public",
         "test" : "phpunit",
-        "test-coverage" : "phpunit --coverage-text",
+        "test-coverage" : "phpunit --coverage-clover build/logs/clover.xml",
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ]
