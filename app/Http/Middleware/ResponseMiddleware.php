@@ -11,6 +11,6 @@ class ResponseMiddleware
 
         if(isset($res->original->data) && $res->original->data == "error") $response = $res->original;
         else $response = new ResponseException("response", $res->original);
-		return response()->json($response, $res->getStatusCode());
+		return response()->json(json_decode(json_encode($response)), $res->getStatusCode());
     }
 }
