@@ -2,7 +2,8 @@
 
 $db = [
 	"default" => "",
-	"connections" => []
+	"connections" => [],
+	"migrations" => "migrations"
 ];
 
 foreach($_ENV as $var => $val){
