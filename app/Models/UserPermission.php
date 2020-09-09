@@ -20,6 +20,13 @@ class UserPermission extends Model
     /**
      * @var array
      */
-    protected $fillable = ['user_id', 'action_id'];
+		protected $fillable = ['user_id', 'action_id'];
+		
+		public function action(){
+			return $this->hasOne('App\Models\CatalogUserAction', 'id', 'action_id');
+		}
+		public function permission(){
+			return $this->belongsTo('App\Models\User', 'id', 'user_id');
+		}
 
 }

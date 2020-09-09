@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $super_admin_id
  * @property string $user_id
  */
-class Relationships extends Model
+class UserRelationships extends Model
 {
     /**
      * The table associated with the model.
@@ -20,8 +20,8 @@ class Relationships extends Model
     /**
      * @var array
      */
-		protected $fillable = [];
+		protected $fillable = ["super_admin_id", "user_id"];
 		
-	
+
 
 }

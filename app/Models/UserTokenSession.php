@@ -16,6 +16,10 @@ class UserTokenSession extends Model
     /**
      * @var array
      */
-    protected $fillable = ['token_id', 'quantity', 'created_at', 'updated_at'];
+		protected $fillable = ['token_id', 'quantity', 'created_at', 'updated_at'];
+
+		
+
+	
 
 }

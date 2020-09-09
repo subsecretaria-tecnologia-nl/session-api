@@ -18,7 +18,7 @@ $router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh']], function () use (
 		
 		// These routes also use the USERS prefix
 		$router->get('/{id}/sessions','SubUsersController@getSessionSubUser');
-		$router->post('/','SubUsersController@getSubUsers');
+		$router->get('/','SubUsersController@getSubUsers');
 		$router->post('/{id}','SubUsersController@getSubUser');	
 		$router->put('/{id}','SubUsersController@editSubUser');
 	});

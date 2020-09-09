@@ -20,6 +20,19 @@ class UserToken extends Model
     /**
      * @var array
      */
-    protected $fillable = ['user_id', 'token', 'token_type_id', 'created_by', 'valid_until', 'closed_at', 'created_at', 'updated_at'];
+		protected $fillable = [
+			'user_id', 
+			'token', 
+			'token_type_id', 
+			'created_by', 
+			'valid_until', 
+			'closed_at', 
+			'created_at', 
+			'updated_at'
+		];
 
+		public function scopeSessionsAct($query)
+		{
+				return $query->where('closed_at', null);
+		}
 }

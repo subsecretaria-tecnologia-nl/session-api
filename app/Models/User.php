@@ -47,30 +47,23 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 				return [];
 		}
 
-		public function sessions()
-    {
-        return $this->hasMany('App\Models\Session');
+
+		public function roles(){
+        return $this->hasOne('App\Models\CatalogUserRoles', 'id', 'role_id');
 		}
 
-		public function roles()
-    {
-        return $this->hasOne('App\Models\Roles', 'id', 'role_id');
-		}
-
-		public function subsusuarios(){
-			return $this->hasMany('App\Models\Relationships', 'super_admin_id', 'id');
+		public function subusers(){
+			return $this->hasMany('App\Models\UserRelationships', 'super_admin_id', 'id');
 		}
 
 		public function permission(){
-			return $this->hasMany('App\Models\UserPermission', 'user_id', 'id');
+			return $this->belongsToMany('App\Models\CatalogUserAction', 'App\Models\UserPermission', 'user_id', 'action_id');
 		}
 		public function tokens(){
 			return $this->hasMany('App\Models\UserToken', 'user_id', 'id');
 		}
 
-		
-
 	
-
+	
 
 }

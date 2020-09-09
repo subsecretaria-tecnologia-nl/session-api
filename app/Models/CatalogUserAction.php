@@ -1,7 +1,7 @@
 <?php
 
-
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -9,14 +9,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $name
  * @property string $description
  */
-class CatalogUserType extends Model
+class CatalogUserAction extends Model
 {
     /**
      * The table associated with the model.
      * 
      * @var string
      */
-    protected $table = 'catalog_token_types';
+    protected $table = 'catalog_user_action';
 
     /**
      * @var array

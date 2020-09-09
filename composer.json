@@ -11,6 +11,7 @@
         "hisorange/browser-detect": "^4.2",
         "illuminate/session": "^7.25",
         "laravel/lumen-framework": "^7.0",
+        "laravelista/lumen-vendor-publish": "7.0",
         "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
@@ -26,7 +27,8 @@
         ],
         "psr-4": {
             "App\\": "app/"
-        }
+				}
+			
     },
     "autoload-dev": {
         "classmap": [
