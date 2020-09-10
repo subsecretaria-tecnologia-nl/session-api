@@ -24,7 +24,8 @@ class UsersController extends Controller
 	}
 
 	public function editUser(Request $request){
-		$user = User::where('username', '=', $request->username)->where('email', '<>', $request->email)->first();
+		$user = User::where('email', $request->email)
+    ->orWhere('username', 'like', '%' .  $request->username . '%')->first();
 		if ($user == true) {
 			throw new ShowableException(401, "User already exists");
 		}
@@ -83,18 +84,13 @@ class UsersController extends Controller
 		}
 	}
 	public function getSessionUser(){
-		$id = auth()->user()->id;
+		$user = JWTAuth::user();
+		$sessions = $user->tokens()->get()->toArray();
 
-		$sessionsActived = User::where('id', $id)->with(['tokens' => function ($q) {
-			$q->sessionsact();
-		}])->get()->toArray();
-		
-		if (!$sessionsActived) {
+		if (!$sessions) {
 			throw new ShowableException (404, "User cannot be found.");
-			
 		}
-
-		return $sessionsActived;
+		return $sessions;
 	}
 	public function signup(Request $request){		
 		$roles = CatalogUserRoles::where('id', $request->role_id)->first();
@@ -129,7 +125,6 @@ class UsersController extends Controller
 		}
 
 		$input = $request->all();
-		$input['password'] = Hash::make($input['password']);
 		$input['status']=1;
 		$user = User::create($input);
 

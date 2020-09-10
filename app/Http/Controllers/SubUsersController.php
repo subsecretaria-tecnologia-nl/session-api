@@ -6,7 +6,7 @@ use App\Exceptions\ShowableException;
 use App\Models\CatalogTokenType;
 use App\Models\CatalogUserRoles;
 use App\Models\User;
-use App\Models\SubUser;
+use App\Models\UserHistory;
 use App\Models\UserRelationships;
 use App\Models\UserToken;
 use App\Models\UserTokenSession;
@@ -84,47 +84,26 @@ class SubUsersController extends Controller
 	
 		public function editSubUser(Request $request){	
 			
-			$user = User::where('id', $request->id)
-			->where('username', '=', $request->username)
-			->where('email', '<>', $request->email)->first();
-			if ($user == true) {
-				return response()->json(['error'=>'User already exists', 'status'=>401]);
-			}
+			$user = User::where('email', $request->email)
+			->orWhere('username', 'like', '%' .  $request->username . '%')->first();
 		
+			if ($user == true) {
+				throw new ShowableException(401, "Sorry, User already exists");				
+			}		
 			
 			$validator = Validator::make($request->all(), [
 				'email' => 'required|string|email|max:255',
 				'username'=>'string',
-				'password' => ['required',
-				 'string',
-				 'min:8',
-				 'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/',
-				 ]
+
 			]);
 
-			$subuser = User::find($request->id);
-		
-			if (!$subuser) {
-				$information = Information::create([
-					'user_id' => auth()->user()->id,
-					'action_date'=>Carbon::now()->format('Y-m-d H:i:s'),
-					'description'=>'Modificar sub usuario',	
-					'modified_variables'=>"",
-					'device_type'=>$result->deviceType(),
-					'browser_type'=>$result->browserType()
-				]);
-				$information->save();
-				return response()->json([
-						'success' => false,
-						'message' => 'Sorry, subuser cannot be found'
-				], 400);
-			}
-			$input = $request->all();
-			$input['password'] = Hash::make($input['password']);	
+			$user = User::find($request->id);		
+	
+			$input = $request->all();	
+			$updated = $user->fill($input);
+	
 
-			$updated = $user->fill($input)->save();
-
-			if ($updated) {
+			if ($updated->save()) {
 					return [
 							'success' => true,
 							'status'=> 200
@@ -158,7 +137,8 @@ class SubUsersController extends Controller
 				$subusers = User::where('created_by', $user->id)->get()->toArray();
 			}else{
 				$relation=$user->subusers()->get()->pluck('user_id')->toArray();
-				$subusers = User::whereIn('id', $relation)->get()->toArray();			}
+				$subusers = User::whereIn('id', $relation)->get()->toArray();			
+			}
 			
 	
 			if (count((array)$subusers) > 0) {
@@ -168,28 +148,14 @@ class SubUsersController extends Controller
 			}
 		}
 		public function getSessionSubUser($id){
-
-				$user = JWTAuth::user();
-	
-				$id = $user->subusers()->pluck('id')->toArray();	
-				
-				$subusers = SubUser::whereIn('id', $id)->pluck('user_id')->toArray();
-
-
-				$sessions_actived = User::whereIn('id', $subusers)->with(['sessions' => function ($q) {
-					$q->sessionsact();
-				}])->get();
-
-		
-
-			if (!$sessions_actived) {
-				return response()->json([
-						'success' => false,
-						'message' => 'Sorry, user cannot be found'
-				], 400);
+			$user =auth()->user();
+			$users=$user->subusers()->get()->pluck('user_id')->toArray();
+			$sessions = UserToken::whereIn('user_id', $users)->get();			
+			
+			if (!$sessions) {
+				throw new ShowableException (404, "Sessions cannot be found.");
 			}
-
-			return $sessions_actived;
+			return $sessions;		
 		}
 
 		public function statusSubUser(Request $request){					
@@ -199,7 +165,7 @@ class SubUsersController extends Controller
 				throw new ShowableException(401, "Sorry, subuser cannot be found");
 			}
 
-			$updated = $user->update([
+			$updated = $user->fill([
 				"status"=>$request->status
 			]);
 
