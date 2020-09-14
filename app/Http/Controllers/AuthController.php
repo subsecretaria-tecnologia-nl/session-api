@@ -182,6 +182,6 @@ class AuthController extends Controller
 		return $this->respondWithToken(auth()->refresh());
 	}
 
-	
+		
 } 
 

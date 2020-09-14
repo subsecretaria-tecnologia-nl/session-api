@@ -3,17 +3,19 @@
 namespace App\Models;
 
 use App\Observers\HistoryObserver;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Laravel\Lumen\Auth\Authorizable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
 	use Authenticatable, Authorizable, HistoryObserver;
-	
+		public $function;
+		protected $table ="users";
     /**
      * @var array
      */
@@ -35,11 +37,12 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 			'deleted_at'
 		];
 
-		protected $hidden = [
-			'password'
-	];
+		protected $hidden = ['password'];
 
-	public function getJWTIdentifier()
+		protected $appends = ['function'];
+
+
+		public function getJWTIdentifier()
 		{
 				return $this->getKey();
 		}
@@ -47,22 +50,23 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		{
 				return [];
 		}
-
-
-		public function roles(){
-        return $this->hasOne('App\Models\CatalogUserRoles', 'id', 'role_id');
+		public function permission(){
+			return $this->belongsToMany('App\Models\CatalogUserAction', 'App\Models\UserPermission', 'user_id', 'action_id');
 		}
-
+		public function roles(){
+			return $this->hasOne('App\Models\CatalogUserRoles', 'id', 'role_id');
+		}
+		
 		public function subusers(){
 			return $this->hasMany('App\Models\UserRelationships', 'super_admin_id', 'id');
 		}
 
-		public function permission(){
-			return $this->belongsToMany('App\Models\CatalogUserAction', 'App\Models\UserPermission', 'user_id', 'action_id');
-		}
 		public function tokens(){
 			return $this->hasMany('App\Models\UserToken', 'user_id', 'id');
 		}
+	
+
+	
 
 
 	

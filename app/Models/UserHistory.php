@@ -4,14 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @property int $id
- * @property string $comment
- * @property string $old_data
- * @property string $new_data
- * @property int $created_by
- * @property string $created_at
- */
+
 class UserHistory extends Model
 {
     /**
@@ -24,6 +17,15 @@ class UserHistory extends Model
     /**
      * @var array
      */
-    protected $fillable = ['comment', 'old_data', 'new_data', 'created_by', 'created_at'];
+    protected $fillable = [
+			'comment', 
+			'old_data', 
+			'new_data', 
+			'table_name', 
+			'change_id', 
+			'created_by', 
+			'created_at' , 
+			'updated_at'
+		];
 
 }

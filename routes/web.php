@@ -17,14 +17,14 @@ $router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh']], function () use (
 		});
 		
 		// These routes also use the USERS prefix
-		$router->get('/{id}/sessions','SubUsersController@getSessionSubUser');
-		$router->get('/','SubUsersController@getSubUsers');
-		$router->post('/{id}','SubUsersController@getSubUser');	
-		$router->put('/{id}','SubUsersController@editSubUser');
+		$router->get('/{id}/sessions','UsersController@getSessionSubUser');
+		$router->get('/','UsersController@getSubUsers');
+		$router->post('/{id}','UsersController@getSubUser');	
+		$router->put('/{id}','UsersController@editSubUser');
 	});
 
 	// Theses routes has not route prefix. But use JWT middlewares
 	$router->get('/logout','AuthController@logout');
-	$router->post('/signupSubUser','SubUsersController@signupSubUser');
-	$router->post('/statusSubUser','SubUsersController@statusSubUser');
+	$router->post('/signupSubUser','UsersController@signupSubUser');
+	$router->post('/statusSubUser','UsersController@statusSubUser');
 });
