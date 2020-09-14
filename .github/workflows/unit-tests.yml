@@ -17,6 +17,7 @@ jobs:
       run: composer install
 
     - name: UnitTest
+      run: composer test
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         APP_NAME: ${{ secrets.APP_NAME }}
@@ -27,13 +28,12 @@ jobs:
         APP_TIMEZONE: ${{ secrets.APP_TIMEZONE }}
         DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      run: composer test
         
     - name: Coveralls
+      run: composer test-coverage
       with:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         COVERALLS_ENTRY_POINT: ${{ secrets.COVERALLS_ENTRY_POINT }}
       env: 
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         COVERALLS_ENTRY_POINT: ${{ secrets.COVERALLS_ENTRY_POINT }}
-      run: composer test-coverage
