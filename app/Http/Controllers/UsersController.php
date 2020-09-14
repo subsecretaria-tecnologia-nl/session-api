@@ -373,6 +373,11 @@ class UsersController extends Controller
 		} else {
 			throw new ShowableException(401, "Sorry, subuser could not be updated");
 		}
+		$input = $request->all();
+		$input['password'] = Hash::make($input['password']);
+		
+
+		$updated = $user->fill($input)->save();
 
 	}	
 }
