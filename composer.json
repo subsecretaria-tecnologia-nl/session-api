@@ -42,7 +42,8 @@
     "prefer-stable": true,
     "scripts": {
         "start" : "php -S localhost:8000 -t public",
-        "test" : "phpunit",
+        "test-local" : "phpunit --coverage-text",
+        "test" : "phpunit --coverage-text --coverage-clover=build/logs/clover.xml",
         "test-coverage" : "php-coveralls -v",
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""

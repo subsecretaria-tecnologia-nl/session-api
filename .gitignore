@@ -6,3 +6,4 @@ Homestead.yaml
 .phpunit.result.cache
 .DS_Store
 /build
+coverage
