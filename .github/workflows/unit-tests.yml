@@ -32,4 +32,5 @@ jobs:
     - name: Coveralls
       env: 
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        COVERALLS_ENTRY_POINT: ${{ secrets.COVERALLS_ENTRY_POINT }}
       run: composer test-coverage
