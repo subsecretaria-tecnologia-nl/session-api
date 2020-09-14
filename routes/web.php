@@ -1,43 +1,33 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It is a breeze. Simply tell Lumen the URIs it should respond to
-| and give it the Closure to call when that URI is requested.
-|
-*/
-
-
 $router->post('/signup','UsersController@signup');
-$router->post('/login','AuthController@login');
-$router->patch('/refresh','AuthController@refresh');
-
+$router->get('/login','AuthController@login');
+$router->get('/refresh','AuthController@refresh');
 $router->post('/password/email', 'PasswordController@postEmail');
 $router->post('/password/reset/{token}', [ 'as' => 'password.reset', 'uses' => 'PasswordController@postReset']);
 
 
+$router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh']], function () use ($router) {
 
-$router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh'], 'prefix'=>'auth'], function () use ($router) {
-	$router->post('/logout','AuthController@logout');
-	$router->post('/getUser','UsersController@getUser');
-	$router->post('/editUser','UsersController@editUser');
-	$router->post('/getSessionUser','UsersController@getSessionUser');
-	$router->post('/signupSubUser','SubUsersController@signupSubUser');
-	$router->post('/getSubUser','SubUsersController@getSubUser');
-	$router->post('/editSubUser','SubUsersController@editSubUser');
-	$router->post('/statusSubUser','SubUsersController@statusSubUser');
-	$router->post('/getSessionSubUser','SubUsersController@getSessionSubUser');
+	// Group with prefix "USERS" => {{APP_HOSTNAME}}/users/[...]
+	$router->group(["prefix" => "users"], function() use ($router){
 
+		// Group with prefix "ME" => {{APP_HOSTNAME}}/users/me/[...]
+		$router->group(["prefix" => "me"], function() use ($router){
+			$router->get('/','UsersController@getUser');
+			$router->get('/sessions','UsersController@getSessionUser');
+			$router->put('/','UsersController@editUser');
+		});
+		
+		// These routes also use the USERS prefix
+		$router->get('/{id}/sessions','UsersController@getSessionSubUser');
+		$router->get('/','UsersController@getSubUsers');
+		$router->post('/{id}','UsersController@getSubUser');	
+		$router->put('/{id}','UsersController@editSubUser');
+	});
 
-
-
-
-
-
-
-
+	// Theses routes has not route prefix. But use JWT middlewares
+	$router->get('/logout','AuthController@logout');
+	$router->post('/signupSubUser','UsersController@signupSubUser');
+	$router->post('/statusSubUser','UsersController@statusSubUser');
 });
