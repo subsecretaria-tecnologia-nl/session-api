@@ -16,7 +16,7 @@ jobs:
     - name: Install all dependencies
       run: composer install
 
-    - name: Run tests and coveralls
+    - name: UnitTest
       run: composer test
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
@@ -28,8 +28,8 @@ jobs:
         APP_TIMEZONE: ${{ secrets.APP_TIMEZONE }}
         DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        
     - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: build/logs/clover.xml
+      run: composer test-coverage
+      env: 
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
