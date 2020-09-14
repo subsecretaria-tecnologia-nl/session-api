@@ -1,5 +1,10 @@
 # NL SESSION API | Lumen PHP Framework
 
+| Master | Dev |
+| ----------- | -------- |
+| [![Coverage Status](https://coveralls.io/repos/github/subsecretaria-tecnologia-nl/session-api/badge.svg?branch=master)](https://coveralls.io/github/subsecretaria-tecnologia-nl/session-api?branch=dev) | [![Coverage Status](https://coveralls.io/repos/github/subsecretaria-tecnologia-nl/session-api/badge.svg?branch=dev)](https://coveralls.io/github/subsecretaria-tecnologia-nl/session-api?branch=dev) |
+| ![example workflow name](https://github.com/subsecretaria-tecnologia-nl/session-api/workflows/Run%20PHP%20Unit%20Tests/badge.svg?branch=master) | ![example workflow name](https://github.com/subsecretaria-tecnologia-nl/session-api/workflows/Run%20PHP%20Unit%20Tests/badge.svg?branch=dev) |
+	
 ## Install Composer
 #### Composer - [Download](https://getcomposer.org/download/).
 
@@ -44,7 +49,6 @@ php -S localhost:8000 -t public
 ```
 
 <!--
-[![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework) 
 [![Total Downloads](https://poser.pugx.org/laravel/lumen-framework/d/total.svg)](https://packagist.org/packages/laravel/lumen-framework)
 [![Latest Stable Version](https://poser.pugx.org/laravel/lumen-framework/v/stable.svg)](https://packagist.org/packages/laravel/lumen-framework)
 [![License](https://poser.pugx.org/laravel/lumen-framework/license.svg)](https://packagist.org/packages/laravel/lumen-framework)

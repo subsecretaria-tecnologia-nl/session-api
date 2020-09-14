@@ -12,8 +12,8 @@ $router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh']], function () use (
 		// Group with prefix "ME" => {{APP_HOSTNAME}}/users/me/[...]
 		$router->group(["prefix" => "me"], function() use ($router){
 			$router->get('/','UsersController@getUser');
-			$router->get('/sessions','UsersController@getSessionUser');
 			$router->put('/','UsersController@editUser');
+			$router->get('/sessions','UsersController@getSessionUser');
 		});
 		
 		// These routes also use the USERS prefix
