@@ -1,2 +1,0 @@
-repo_token: ${ COVERALLS_REPO_TOKEN }
-entry_point: ${{ COVERALLS_ENTRY_POINT }}
