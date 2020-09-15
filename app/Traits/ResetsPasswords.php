@@ -143,7 +143,7 @@ trait ResetsPasswords
     protected function resetPassword($user, $password)
     {
         $user->password = Hash::make($password);
-
+				$user->unsetEventDispatcher();
         $user->save();
 
         return response()->json(['success' => true]);
