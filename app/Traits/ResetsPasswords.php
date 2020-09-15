@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Traits;
+use App\Exceptions\ShowableException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
@@ -9,44 +10,16 @@ use Illuminate\Support\Facades\Password;
 
 trait ResetsPasswords
 {
-    /**
-     * Enviar un enlace de reset al usuario.
+	 /**
+     * Broker usado en el restablecimiento de la contraseña
      *
-     * @param  $request
-     * @return $response
+     * @return string|null
      */
-    public function postEmail(Request $request)
+    public function getBroker()
     {
-        return $this->sendResetLinkEmail($request);
+        return property_exists($this, 'broker') ? $this->broker : null;
     }
-
-    /**
-     * Enviar un enlace de reset al usuario.
-     *
-     * @param  $request
-     * @return $response
-     */
-    public function sendResetLinkEmail(Request $request)
-    {
-        $this->validate($request, ['email' => 'required|email']);
-
-        $broker = $this->getBroker();
-
-        $response = Password::broker($broker)->sendResetLink($request->only('email'), function (Message $message) {
-            $message->subject($this->getEmailSubject());
-        });
-
-        switch ($response) {
-            case Password::RESET_LINK_SENT:
-                return $this->getSendResetLinkEmailSuccessResponse($response);
-
-            case Password::INVALID_USER:
-            default:
-                return $this->getSendResetLinkEmailFailureResponse($response);
-        }
-    }
-
-    /**
+	  /**
      * Enlace de restablecimiento.
      *
      * @return string
@@ -54,6 +27,27 @@ trait ResetsPasswords
     protected function getEmailSubject()
     {
         return property_exists($this, 'subject') ? $this->subject : 'Enlace reset password';
+		}
+		 /**
+     * Respuesta cuando no se pudo restablecer la contraseña
+     *
+     * @param  Request  $request
+     * @param  string  $response
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function getResetFailureResponse(Request $request, $response)
+    {
+			throw new ShowableException(401, "Password could not be reset");
+    }
+		 /**
+     * Respuesta cuando se restablecio la contraseña
+     *
+     * @param  string  $response
+     * @return $response
+     */
+    protected function getResetSuccessResponse($response)
+    {
+        return ['success' => true, 'status'=>200];
     }
 
     /**
@@ -62,9 +56,29 @@ trait ResetsPasswords
      * @param  string  $response
      * @return $response
      */
-    protected function getSendResetLinkEmailSuccessResponse($response)
+		 /**
+     * Validaciones para contraseña
+     *
+     * @return array
+     */
+    protected function getResetValidationRules()
     {
-        return response()->json(['success' => true]);
+        return [
+            'token' => 'required',
+            'email' => 'required|string|email|max:255',
+            'password' => [
+							'required',
+							'string',
+							'min:8',
+							'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/',
+						],
+        ];
+    }
+   
+
+		protected function getSendResetLinkEmailSuccessResponse($response)
+    {
+			return ['success' => true, 'status'=>200];
     }
 
     /**
@@ -75,10 +89,20 @@ trait ResetsPasswords
      */
     protected function getSendResetLinkEmailFailureResponse($response)
     {
-      return response()->json(['success' => false]);
-    }
-
-
+      return ['success' => true, 'status'=>200];
+		}
+		
+    /**
+     * Enviar un enlace de reset al usuario.
+     *
+     * @param  $request
+     * @return $response
+     */
+    public function postEmail(Request $request)
+    {
+        return $this->sendResetLinkEmail($request);
+		}
+		
     /**
      * Cambio de contraseña.
      *
@@ -90,6 +114,7 @@ trait ResetsPasswords
         return $this->reset($request);
     }
 
+    
     /**
      * Cambio de contraseña.
      *
@@ -117,21 +142,7 @@ trait ResetsPasswords
             default:
                 return $this->getResetFailureResponse($request, $response);
         }
-    }
-
-    /**
-     * Validaciones para contraseña
-     *
-     * @return array
-     */
-    protected function getResetValidationRules()
-    {
-        return [
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|confirmed|min:6',
-        ];
-    }
+    }   
 
     /**
      * Restablecer la contraseña de usuario
@@ -146,39 +157,33 @@ trait ResetsPasswords
 				$user->unsetEventDispatcher();
         $user->save();
 
-        return response()->json(['success' => true]);
+        return ['success' => true, 'status'=>200];
     }
 
-    /**
-     * Respuesta cuando se restablecio la contraseña
+   /**
+     * Enviar un enlace de reset al usuario.
      *
-     * @param  string  $response
+     * @param  $request
      * @return $response
      */
-    protected function getResetSuccessResponse($response)
+    public function sendResetLinkEmail(Request $request)
     {
-        return response()->json(['success' => true]);
-    }
+        $this->validate($request, ['email' => 'required|email']);
 
-    /**
-     * Respuesta cuando no se pudo restablecer la contraseña
-     *
-     * @param  Request  $request
-     * @param  string  $response
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    protected function getResetFailureResponse(Request $request, $response)
-    {
-        return response()->json(['success' => false]);
-    }
+        $broker = $this->getBroker();
 
-    /**
-     * Broker usado en el restablecimiento de la contraseña
-     *
-     * @return string|null
-     */
-    public function getBroker()
-    {
-        return property_exists($this, 'broker') ? $this->broker : null;
-    }
+        $response = Password::broker($broker)->sendResetLink($request->only('email'), function (Message $message) {
+            $message->subject($this->getEmailSubject());
+        });
+
+        switch ($response) {
+            case Password::RESET_LINK_SENT:
+                return $this->getSendResetLinkEmailSuccessResponse($response);
+
+            case Password::INVALID_USER:
+            default:
+                return $this->getSendResetLinkEmailFailureResponse($response);
+        }
+    }   
+   
 }
