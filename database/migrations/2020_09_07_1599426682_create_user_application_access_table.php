@@ -9,9 +9,8 @@ class CreateUserApplicationAccessTable extends Migration
     public function up()
     {
         Schema::create('user_application_access', function (Blueprint $table) {
-
-		$table->integer('user_id',11);
-		$table->string('access_id',11);
+					$table->integer('user_id',11);
+					$table->string('access_id',11);
 
         });
     }

@@ -9,10 +9,9 @@ class CreateCatalogAccessTypesTable extends Migration
     public function up()
     {
         Schema::create('catalog_access_types', function (Blueprint $table) {
-
-		$table->increments(id);
-		$table->string('name',45);
-		$table->string('description',150);
+					$table->increments(id);
+					$table->string('name',45);
+					$table->string('description',150);
 
         });
     }

@@ -249,12 +249,7 @@ class UsersController extends Controller
 		if($validator->fails()){
 			throw new ShowableException(401, $validator->errors());
 		}
-		$input = $request->all();
-		$input['password'] = Hash::make($input['password']);
-		
-
-		$updated = $user->fill($input)->save();
-
+	
 		$auth = auth()->user();
 		if($auth){
 			$user_id =$auth->id;
@@ -263,7 +258,7 @@ class UsersController extends Controller
 		}
 
 		$input = $request->all();
-		$input['status']=1;
+		$input['password'] = Hash::make($input['password']);
 		$user = User::create($input);
 
 		$token = auth()->login($user);
@@ -312,7 +307,6 @@ class UsersController extends Controller
 			
         $input = $request->all();			
 				$input['password'] = Hash::make($input['password']);
-				$input['status'] = 1;
 
 				if($permission["permiso"]<>1 || $permission["permiso"]<>3){
 					$input["created_by"]=$id;

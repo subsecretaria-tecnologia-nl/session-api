@@ -9,9 +9,8 @@ class CreateUserRelationshipsTable extends Migration
     public function up()
     {
         Schema::create('user_relationships', function (Blueprint $table) {
-
-		$table->integer('super_admin_id',11);
-		$table->string('user_id',11);
+					$table->integer('super_admin_id',11);
+					$table->string('user_id',11);
 
         });
     }

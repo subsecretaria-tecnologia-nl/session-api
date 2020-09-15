@@ -9,12 +9,11 @@ class CreateCatalogApplicationTable extends Migration
     public function up()
     {
         Schema::create('catalog_application', function (Blueprint $table) {
-
-		$table->increments(id);
-		$table->string('name',45);
-		$table->string('description',150);
-		$table->string('url',150);
-		$table->integer('access_type_id',11);
+					$table->increments(id);
+					$table->string('name',45);
+					$table->string('description',150);
+					$table->string('url',150);
+					$table->integer('access_type_id',11);
 
         });
     }
