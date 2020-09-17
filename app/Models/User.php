@@ -1,31 +1,46 @@
 <?php
 
 namespace App\Models;
+
+use App\Observers\HistoryObserver;
 use Illuminate\Auth\Authenticatable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
-use Laravel\Lumen\Auth\Authorizable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Laravel\Lumen\Auth\Authorizable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Model implements
-    AuthenticatableContract,
-		AuthorizableContract,
-		JWTSubject
+class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
-    use Authenticatable, Authorizable;
-
-
+	use Authenticatable, Authorizable, HistoryObserver;
+		public $function;
+		protected $table ="users";
+    /**
+     * @var array
+     */
     protected $fillable = [
-        'id', 'name', 'email', 'password', 'api_token', 'rol_id'
-    ];
-
-   
-    protected $hidden = [
-        'password', 'remember_token'
+			"id",
+			'username', 
+			'email', 
+			'password', 
+			'role_id', 
+			'name', 
+			'mothers_surname', 
+			'fathers_surname', 
+			'curp', 
+			'rfc', 
+			'phone', 
+			'status', 
+			'created_by', 
+			'created_at', 
+			'updated_at', 
+			'deleted_at'
 		];
 
-		
+		protected $hidden = ['password'];
+
+
 		public function getJWTIdentifier()
 		{
 				return $this->getKey();
@@ -34,21 +49,26 @@ class User extends Model implements
 		{
 				return [];
 		}
-
-		public function sessions()
-    {
-        return $this->hasMany('App\Models\Session');
+		public function permission(){
+			return $this->belongsToMany('App\Models\CatalogUserAction', 'App\Models\UserPermission', 'user_id', 'action_id');
+		}
+		public function roles(){
+			return $this->hasOne('App\Models\CatalogUserRoles', 'id', 'role_id');
+		}
+		
+		public function subusers(){
+			return $this->hasMany('App\Models\UserRelationships', 'super_admin_id', 'id');
 		}
 
-		public function subusers()
-    {
-				return $this->hasMany('App\Models\SubUser', 'id_user_created_by', 'id');
-		
-    }
+		public function tokens(){
+			return $this->hasMany('App\Models\UserToken', 'user_id', 'id');
+		}
+	
 
+	
 
 
 	
-		
-		
+	
+
 }
