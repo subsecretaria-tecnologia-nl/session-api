@@ -164,7 +164,7 @@ class AuthController extends Controller
 		->first();
 
 		$end = Carbon::now()->format('Y-m-d H:i:s');
-		$userToken->close_at = $end;	
+		$userToken->closed_at = $end;	
 
 		$userToken->save();
 

@@ -31,8 +31,7 @@ class UsersController extends Controller
 		//Verificar que permiso tiene el usuario	
 		$user=User::where('id', $userId)->first();
 		$permission = $user->permission[0]->name;	
-		
-		
+
 		//Ver cual rol es el que esta asignando
 		$roles = CatalogUserRoles::where('id', $roleId)->first();
 
@@ -80,22 +79,17 @@ class UsersController extends Controller
 	}
 	public function editUser(Request $request)
 	{
-		$user = User::where('email', $request->email)
-    ->orWhere('username', 'like', '%' .  $request->username . '%')->first();
+		$user = User::where('email', $request->input("email"))
+    ->orWhere('username', 'like', '%' . $request->input("username") . '%')->first();
 		if ($user == true) {
 			throw new ShowableException(401, "User already exists");
 		}
 
 
 		$validator = Validator::make($request->all(), [
-			'email' => 'required|string|email|max:255',
+			'email' => 'string|email|max:255',
 			'username'=>'string',
-			'password' => [
-				'required',
-				'string',
-				'min:8',
-				'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/',
-			]
+		
 		]);
 
 		if ($validator->fails()) {
@@ -114,9 +108,7 @@ class UsersController extends Controller
 			];
 		}
 		$user->function = "Editar usuario";
-		$input = $request->all();
-		$input['password'] = Hash::make($input['password']);
-		
+		$input = $request->all();		
 
 		$updated = $user->fill($input)->save();
 
@@ -142,7 +134,7 @@ class UsersController extends Controller
 		}		
 		
 		$validator = Validator::make($request->all(), [
-			'email' => 'required|string|email|max:255',
+			'email' => 'string|email|max:255',
 			'username'=>'string',
 
 		]);
@@ -230,7 +222,9 @@ class UsersController extends Controller
 		if($roles->name=='Funcionario' || $roles->name=='Notario'){
 			throw new ShowableException(401, "$roles->name tiene que ser creado por un usuario con privilegios master");
 		}
-		$user = User::where('username', '=', $request->username)->where('email', '<>', $request->email)->first();
+		$user = User::where('email', $request->input("email"))
+		->orWhere('username', 'like', '%' .  $request->input("username") . '%')->first();
+		
 		if ($user == true) {
 			throw new ShowableException(401, "User already exists");
 		}
@@ -284,22 +278,20 @@ class UsersController extends Controller
 	public function signupSubUser(Request $request)
     {	
 			
-				$user = User::where('username', '=', $request->username)->where('email', '<>', $request->email)->first();
-				if ($user == true) {
+			$user = User::where('email', $request->input("email"))
+			->orWhere('username', 'like', '%' .  $request->input("username") . '%')->first();
+				
+				if ($user) {
 					throw new ShowableException(401, "User already exists");
 				}
-				$id = auth()->user()->id;
-				$permission = $this->permissionCreatedUser($id, $request->role_id, $request->assingUser, $request->subuser);
-
-				
-        $validator = Validator::make($request->all(), [
+				$id = auth()->user()->id;				
+			
+				$permission = $this->permissionCreatedUser($id, $request->input("role_id"), $request->input("assingUser"), $request->input("subuser"));
+	
+			  $validator = Validator::make($request->all(), [
 					'email' => 'required|string|email|max:255',
-					'username'=>'string',
-					'password' => [
-						'required',
-						'string',
-						'min:8',
-						'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/']
+					'username'=>'string'
+					
 				]);
 				if($validator->fails()){
 					throw new ShowableException(401, $validator->errors());
@@ -311,11 +303,11 @@ class UsersController extends Controller
 				if($permission["permiso"]<>1 || $permission["permiso"]<>3){
 					$input["created_by"]=$id;
 				}	
-
+		
 				$user = User::create($input);
 
 				if($permission["permiso"]==1 || $permission["permiso"]==2 || $permission["permiso"]==3){
-					$relation["super_admin_id"]=$assingUser;
+					$relation["super_admin_id"]=$request->assingUser;
 					$relation["user_id"]=$user->id;
 					$subuser = UserRelationships::create($relation);
 				}
@@ -339,7 +331,7 @@ class UsersController extends Controller
 						]
 					]
 				];
-    
+				
         if ($user->save()){
 					return $response;
 				}else{
