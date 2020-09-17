@@ -27,6 +27,11 @@ $app->withFacades();
 
 $app->withEloquent();
 
+$app->configure('services');
+
+$app->configure('mail');
+
+
 
 
 
@@ -50,6 +55,8 @@ $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
     App\Console\Kernel::class
 );
+$app->alias('mail.manager', Illuminate\Mail\MailManager::class);
+$app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -103,6 +110,9 @@ $app->routeMiddleware([
 
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(\Illuminate\Auth\Passwords\PasswordResetServiceProvider::class);
+$app->register(\Illuminate\Mail\MailServiceProvider::class);
+$app->register(Illuminate\Notifications\NotificationServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 // $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 /*

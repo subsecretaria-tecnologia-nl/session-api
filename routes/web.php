@@ -3,6 +3,9 @@
 $router->post('/signup','UsersController@signup');
 $router->get('/login','AuthController@login');
 $router->get('/refresh','AuthController@refresh');
+$router->post('/password/email', 'PasswordController@postEmail');
+$router->post('/password/reset/{token}', [ 'as' => 'password.reset', 'uses' => 'PasswordController@postReset']);
+
 
 $router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh']], function () use ($router) {
 
