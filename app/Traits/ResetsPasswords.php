@@ -2,6 +2,10 @@
 
 namespace App\Traits;
 use App\Exceptions\ShowableException;
+use App\Models\PasswordResets;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
@@ -10,6 +14,8 @@ use Illuminate\Support\Facades\Password;
 
 trait ResetsPasswords
 {
+		
+
 	 /**
      * Broker usado en el restablecimiento de la contraseña
      *
@@ -45,9 +51,10 @@ trait ResetsPasswords
      * @param  string  $response
      * @return $response
      */
-    protected function getResetSuccessResponse($response)
+    protected function getResetSuccessResponse($response, $email)
     {
-        return ['success' => true, 'status'=>200];
+	
+        return ['success' => true, 'email'=>$email, 'status'=>200];
     }
 
     /**
@@ -99,8 +106,14 @@ trait ResetsPasswords
      * @return $response
      */
     public function postEmail(Request $request)
-    {
-        return $this->sendResetLinkEmail($request);
+    {	
+			$user=User::where('email', $request->email)->first();
+			if($user){
+				return $this->sendResetLinkEmail($request);
+			}else{
+				throw new ShowableException(401, "User not exists");
+			}
+        
 		}
 		
     /**
@@ -123,21 +136,24 @@ trait ResetsPasswords
      */
     public function reset(Request $request)
     {
+			
         $this->validate($request, $this->getResetValidationRules());
 
         $credentials = $request->only(
             'email', 'password', 'password_confirmation', 'token'
-        );
+				);				
 
-        $broker = $this->getBroker();
+				$broker = $this->getBroker();			
 
         $response = Password::broker($broker)->reset($credentials, function ($user, $password) {
             $this->resetPassword($user, $password);
-        });
+				});
+				
+			
 
         switch ($response) {
             case Password::PASSWORD_RESET:
-                return $this->getResetSuccessResponse($response);
+                return $this->getResetSuccessResponse($response, $request->email);
 
             default:
                 return $this->getResetFailureResponse($request, $response);
@@ -184,6 +200,7 @@ trait ResetsPasswords
             default:
                 return $this->getSendResetLinkEmailFailureResponse($response);
         }
-    }   
+		} 	
+		
    
 }
