@@ -1,21 +1,21 @@
 <?php 
 namespace App\Exceptions;
 
-class ShowableException extends \Exception {
+class JsonSchemaException extends \Exception {
 	protected $code;
 	protected $message;
 
-	public function __construct($code=NULL, $message=NULL, $description=NULL){
+	public function __construct($description=NULL){
 		$this->description = isset($description) ? $description : $this->getDescription();
-		$this->code = isset($code) ? $code : $this->getCode();
-		$this->message = isset($message) ? $message : $this->getMessage();
+		$this->code = 422;
+		$this->message = "JSON Schema Exception";
 	}
 
 	public function toArray() {
 		$data = array(
 			"code" => $this->code,
 			"description" => $this->getDescription(),
-			"message" => $this->message
+			"message" => $this->message,
 		);
 	}
 
