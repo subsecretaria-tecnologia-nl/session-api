@@ -56,14 +56,14 @@ class Handler extends ExceptionHandler
         $statusCode = method_exists($exception, "getStatusCode") ? $exception->getStatusCode() : (method_exists($exception, "getCode") && $exception->getCode() > 99 ? $exception->getCode() : 500);
         $description = method_exists($exception, "getDescription") ? $exception->getDescription() : null;
         $action = $request->getPathInfo();
-
+        // dd($exception);
 
         switch($statusCode){
             case 405:
                 $message = "Method Not Allowed (".$request->getMethod()."). Only allow: ".$exception->getHeaders()["Allow"];
             break;
             case 404:
-                $message = "The action you are looking for (".$action.") is not found.";
+                $message = !empty($exception->getMessage()) ? $exception->getMessage() : "The action you are looking for (".$action.") is not found.";
             break;
             default:
                 $message = $exception->getMessage();
@@ -73,11 +73,12 @@ class Handler extends ExceptionHandler
             $message = "Internal Server Error";
         }
 
+        $error["code"] = $statusCode;
         $error["message"] = $message;
         if($description) $error["description"] = $description;
+        if($error["message"] == "JSON Schema Exception" && strpos($error["description"], 'Unknown schema format') === false) $error["data"] = request()->all();
         if(env("APP_ENV") != "production")
             $error["file"] = $exception->getFile().":".$exception->getLine();
-        $error["code"] = $statusCode;
 
         $response = new ResponseException("error", $error);
         return response()->json($response, $statusCode < 100 || $statusCode > 600 ? 500 : $statusCode);

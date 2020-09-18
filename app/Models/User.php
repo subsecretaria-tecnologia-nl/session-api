@@ -20,55 +20,47 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-			"id",
-			'username', 
-			'email', 
-			'password', 
-			'role_id', 
-			'name', 
-			'mothers_surname', 
-			'fathers_surname', 
-			'curp', 
-			'rfc', 
-			'phone', 
-			'status', 
-			'created_by', 
-			'created_at', 
-			'updated_at', 
-			'deleted_at'
-		];
+		"id",
+		'username', 
+		'email', 
+		'password', 
+		'role_id', 
+		'name', 
+		'mothers_surname', 
+		'fathers_surname', 
+		'curp', 
+		'rfc', 
+		'phone', 
+		'status', 
+		'created_by', 
+		'created_at', 
+		'updated_at', 
+		'deleted_at'
+	];
 
-		protected $hidden = ['password'];
+	protected $hidden = ['password'];
 
 
-		public function getJWTIdentifier()
-		{
-				return $this->getKey();
-		}
-		public function getJWTCustomClaims()
-		{
-				return [];
-		}
-		public function permission(){
-			return $this->belongsToMany('App\Models\CatalogUserAction', 'App\Models\UserPermission', 'user_id', 'action_id');
-		}
-		public function roles(){
-			return $this->hasOne('App\Models\CatalogUserRoles', 'id', 'role_id');
-		}
-		
-		public function subusers(){
-			return $this->hasMany('App\Models\UserRelationships', 'super_admin_id', 'id');
-		}
-
-		public function tokens(){
-			return $this->hasMany('App\Models\UserToken', 'user_id', 'id');
-		}
+	public function getJWTIdentifier()
+	{
+			return $this->getKey();
+	}
+	public function getJWTCustomClaims()
+	{
+			return [];
+	}
+	public function permission(){
+		return $this->belongsToMany('App\Models\CatalogUserAction', 'App\Models\UserPermission', 'user_id', 'action_id');
+	}
+	public function roles(){
+		return $this->hasOne('App\Models\CatalogUserRoles', 'id', 'role_id');
+	}
 	
+	public function subusers(){
+		return $this->hasMany('App\Models\UserRelationships', 'super_admin_id', 'id');
+	}
 
-	
-
-
-	
-	
-
+	public function tokens(){
+		return $this->hasMany('App\Models\UserToken', 'user_id', 'id');
+	}	
 }
