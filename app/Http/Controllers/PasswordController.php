@@ -21,24 +21,7 @@ class PasswordController extends Controller
     {
         $this->broker = 'users';
 		}
-   /**
-     * Determina si el token es valido
-     *
-     * @param  $request
-     */
-		public function validateToken(Request $request)
-    {	 
-			$item = PasswordResets::where('email', $request->email)->first();
-			$token = Hash::check( $request->token, $item->token);
-			
-
-				if(!$token){
-					throw new ShowableException(401, "Invalid token");
-				}			
-
-        return $this->tokenExpired($item['created_at']);
-		}
-
+		
     /**
      * Determina si el token ha expirado
      *
@@ -55,5 +38,22 @@ class PasswordController extends Controller
 			return ['message' => 'Token valid', 'success' => true, 'status'=>200];
         
 		}
+   /**
+     * Determina si el token es valido
+     *
+     * @param  $request
+     */
+		public function validateToken(Request $request)
+    {	 
+			$item = PasswordResets::where('email', $request->email)->first();
+			$token = Hash::check( $request->token, $item->token);
+			
+				if(!$token){
+					throw new ShowableException(401, "Invalid token");
+				}			
+
+        return $this->tokenExpired($item['created_at']);
+		}
+
 		
 }
