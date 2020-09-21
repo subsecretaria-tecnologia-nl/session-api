@@ -43,12 +43,12 @@ class PasswordController extends Controller
      *
      * @param  $request
      */
-		public function validateToken(Request $request)
-    {	 
+		public function validateToken(Request $request, $token)
+    {	 			
 			$item = PasswordResets::where('email', $request->email)->first();
-			$token = Hash::check( $request->token, $item->token);
+			$tokenCheck = Hash::check( $token, $item->token);
 			
-				if(!$token){
+				if(!$tokenCheck){
 					throw new ShowableException(401, "Invalid token");
 				}			
 

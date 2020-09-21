@@ -71,7 +71,6 @@ trait ResetsPasswords
     protected function getResetValidationRules()
     {
         return [
-            'token' => 'required',
             'email' => 'required|string|email|max:255',
             'password' => [
 							'required',
@@ -136,20 +135,24 @@ trait ResetsPasswords
      */
     public function reset(Request $request)
     {
+				$this->validate($request, $this->getResetValidationRules());
+        
+				$token = $request->route()[2]["token"];
+
+        $credentials =[
+          "email"=>$request->email,
+          "password"=>$request->password,
+          "password_confirmation"=>$request->password_confirmation,
+          "token"=>$token
+				];
+				
 			
-        $this->validate($request, $this->getResetValidationRules());
-
-        $credentials = $request->only(
-            'email', 'password', 'password_confirmation', 'token'
-				);				
-
 				$broker = $this->getBroker();			
 
         $response = Password::broker($broker)->reset($credentials, function ($user, $password) {
             $this->resetPassword($user, $password);
 				});
-				
-			
+					
 
         switch ($response) {
             case Password::PASSWORD_RESET:
@@ -190,7 +193,8 @@ trait ResetsPasswords
 
         $response = Password::broker($broker)->sendResetLink($request->only('email'), function (Message $message) {
             $message->subject($this->getEmailSubject());
-        });
+				});
+		
 
         switch ($response) {
             case Password::RESET_LINK_SENT:

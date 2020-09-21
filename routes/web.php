@@ -5,8 +5,8 @@ $router->group(["middleware" => "json.schema.validation"], function () use ($rou
 	$router->get('/login','AuthController@login');
 	$router->get('/refresh','AuthController@refresh');
 	$router->post('/password/recovery', 'PasswordController@postEmail');
-	$router->post('/password/recovery/token', [ 'as' => 'password.reset', 'uses' => 'PasswordController@postReset']);
-	$router->get('/password/recovery/token', 'PasswordController@validateToken');
+	$router->post('/password/recovery/{token}', [ 'as' => 'password.reset', 'uses' => 'PasswordController@postReset']);
+	$router->get('/password/recovery/{token}', 'PasswordController@validateToken');
 
 	$router->group(['middleware' =>  ['jwt.auth', 'jwt.refresh']], function () use ($router) {
 

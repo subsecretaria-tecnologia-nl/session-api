@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\ResetPasswordNotification;
 use App\Observers\HistoryObserver;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -43,7 +44,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
 	protected $hidden = ['password'];
 
-
+	public function sendPasswordResetNotification($token)
+	{
+			$this->notify(new ResetPasswordNotification($token));
+	}
 	public function getJWTIdentifier()
 	{
 			return $this->getKey();
