@@ -2,18 +2,22 @@
 
 namespace App\Models;
 
+use App\Notifications\ResetPasswordNotification;
 use App\Observers\HistoryObserver;
 use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Laravel\Lumen\Auth\Authorizable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
+class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject, CanResetPasswordContract
 {
-	use Authenticatable, Authorizable, HistoryObserver;
+	use Authenticatable, Authorizable, HistoryObserver, Notifiable, CanResetPassword;
 		public $function;
 		protected $table ="users";
     /**
@@ -40,7 +44,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
 	protected $hidden = ['password'];
 
-
+	public function sendPasswordResetNotification($token)
+	{
+			$this->notify(new ResetPasswordNotification($token));
+	}
 	public function getJWTIdentifier()
 	{
 			return $this->getKey();
