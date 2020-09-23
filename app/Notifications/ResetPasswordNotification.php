@@ -66,9 +66,10 @@ class ResetPasswordNotification extends Notification
         if (static::$createUrlCallback) {
             $url = call_user_func(static::$createUrlCallback, $notifiable, $this->token);
         } else {
-            $url = url(route('password.reset', [
-                'token' => $this->token,
-            ], false));
+            $url = env("APP_HOSTNAME")."/password/recovery/{$this->token}";
+            // $url = url(route('password.reset', [
+            //     'token' => $this->token,
+            // ], false));
         }
 
         return (new MailMessage)

@@ -24,6 +24,7 @@ jobs:
         APP_DEBUG: ${{ secrets.APP_DEBUG }}
         APP_KEY: ${{ secrets.APP_KEY }}
         APP_HOSTNAME: ${{ secrets.APP_HOSTNAME }}
+        API_HOSTNAME: ${{ secrets.API_HOSTNAME }}
         APP_TIMEZONE: ${{ secrets.APP_TIMEZONE }}
         DB_CONNECTION: ${{ secrets.DB_CONNECTION }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
