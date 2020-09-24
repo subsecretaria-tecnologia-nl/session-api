@@ -1,7 +1,7 @@
 <?php
 
 $db = [
-    "default" => "",
+    "default" => env("DB_DEFAULT") ?? "",
     'migrations' => 'migrations',
     "connections" => []
 ];
@@ -18,7 +18,7 @@ foreach($_ENV as $var => $val){
                 $conname += "_1";
         }
 
-        if(empty($db["connections"]))
+        if(empty($db["connections"]) && empty($db["default"]))
             $db["default"] = "db".($conname ?? "");
 
         extract(parse_url(env($var)));
