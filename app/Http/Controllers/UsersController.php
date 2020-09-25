@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\ShowableException;
 use App\Models\CatalogTokenType;
 use App\Models\CatalogUserRoles;
+use App\Models\NotaryOffice;
 use App\Models\User;
 use App\Models\UserHistory;
 use App\Models\UserRelationships;
@@ -115,13 +116,15 @@ class UsersController extends Controller
 		}
 	}
 
-	public function getSubUser(Request $request){
-		$user = User::where('id', $request->id)->first();
+	public function getSubUser(){
+		$id = request()->id;
+		$user = User::where('id', $id)->first();
 		$permission = $user->permission()->get()->first();
-
-		$configUserNotary = ConfigUserNotaryOffice::where('user_id', $request->id)->first();
-		if($configUserNotary){
-			$notary = NotaryOffice::where("id", $configUserNotary->id)->with(["users"])->first();
+		$isNotary = $user->isnotary()->get()->first();	
+		
+	
+		if($isNotary){
+			$notary = NotaryOffice::where("id", $isNotary->id)->with(["users"])->first();
 			if(!$notary)
 				throw new ShowableException(404, "Notary Office ID ($id) does not found.");
 			return [
