@@ -24,13 +24,13 @@ class NotaryOfficesController extends Controller
 
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
 		if(array_key_exists ("titular",  $notary_office))
-			throw new ShowableException(422, "Just only can exits one titular.");
+			throw new ShowableException(422, "Only can exits one titular.");
 
 		if(array_key_exists ("substitute",  $notary_office) ){
 			array_push($substitute, $notary_office["substitute"]);
 			
 			if(count($substitute) > 1 && ($notaryOffice->substitute_id >0))
-			throw new ShowableException(422, "Just only can exits one substitute.");	
+			throw new ShowableException(422, "Only can exits one substitute.");	
 		}
 
 
@@ -90,6 +90,7 @@ class NotaryOfficesController extends Controller
 		return $response;
 
 	}
+
 	public function signup(){
 		$notary_office = request()->notary_office;
 		$users = [];
@@ -180,15 +181,35 @@ class NotaryOfficesController extends Controller
 		];
 	}
 	public function updateNotary($id){
-		$notary_office= request()->notary_office;
-		$notary = NotaryOffice::find($id);
-		$updated = $notary->update($notary_office);
+		$notary_office= request()->all();
+		if(array_key_exists ("titular_id",  $notary_office) ){
+			throw new ShowableException(422, "Sorry, titular could not be updated");	
+		}
 
-		if ($updated) {
+		$notary = NotaryOffice::find($id);
+		
+		$notary->fill($notary_office);		
+		$original =$notary->getOriginal();
+	
+		if ($notary->save()) {		
+			$substitute = $notary->getChanges("substitute_id");
+			if(!empty($substitute)){
+				$create =ConfigUserNotaryOffice::create([
+					"notary_office_id" => $id,
+					"user_id" => $notary->substitute_id
+				]);
+				if($create->save()){
+					$delete =ConfigUserNotaryOffice::where("user_id", $original["substitute_id"])
+					->where("notary_office_id", $id)->delete();
+				}
+				
+						
+			}
 			return [
 				'success' => true,
 				'status'=> 200
 			];
+
 		} else {
 			throw new ShowableException(401, "Sorry, notary could not be updated.");
 		}
