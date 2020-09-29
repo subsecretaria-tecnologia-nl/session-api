@@ -21,6 +21,12 @@ class CatalogUserRoles extends Model
     /**
      * @var array
      */
-    protected $fillable = ['name', 'description'];
+		protected $fillable = ['id','name', 'description'];
+
+		public function scopeNotaryRole($query, $tipo) {
+    	if ($tipo) {
+    		return $query->where('name','like',"%notary_$tipo%");
+    	}
+    }
 
 }

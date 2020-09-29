@@ -15,72 +15,55 @@ class NotaryOfficesController extends Controller
 	public function createUsersNotary($id){
 		$notary_office= request()->notary_office;
 		$response = [];
-		$substitute = [];
-		$users = [];
 		$relationships = [];
-		$users_notary = [];
+		$notary_users=[];
+		$addUsers=[];
 		$error = null;
 		$notary = null;	
-
+		extract($notary_office, EXTR_PREFIX_SAME, "notary");
+		unset($notary_office["titular"], $notary_office["substitute"], $notary_office["users"]);
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
-		if(array_key_exists ("titular",  $notary_office))
+
+		if(!empty($titular))
 			throw new ShowableException(422, "Only can exits one titular.");
 
-		if(array_key_exists ("substitute",  $notary_office) ){
-			array_push($substitute, $notary_office["substitute"]);
-			
-			if(count($substitute) > 1 && ($notaryOffice->substitute_id >0))
-			throw new ShowableException(422, "Only can exits one substitute.");	
+		if(!empty($substitute)){	
+			if(count($substitute) > 1 && ($notaryOffice->substitute_id >0)){
+				throw new ShowableException(422, "Only can exits one substitute.");	
+			}else{
+				$role =	CatalogUserRoles::notaryrole('substitute')->first();				
+					$substitute["role_id"] = $role->id;		
+			}
 		}
 
-
-		if(array_key_exists ("users",  $notary_office))
-			array_push($users, $notary_office["users"]);
-		
-		
-
-		$roles = CatalogUserRoles::where("name", "LIKE", "notary_%")->get();
-
-		foreach($roles as $rol){
-				preg_match("/notary_(.*)/", $rol->name, $matches);
-				if($matches[1] == "substitute" && isset($substitute)){
-					foreach($substitute as $ind => $user){
-						$substitute[$ind]["role_id"] = $rol->id;
-					}
-				}elseif($matches[1] == "users" && isset($users)){
-						foreach($users as $ind => $user){
-							$users[$ind]["role_id"] = $rol->id;
-						}	
-				}
-			
+		if(!empty($users)){	
+			$role =	CatalogUserRoles::notaryrole('users')->first();		
+			foreach($users as $key => $user){
+				$users[$key]["role_id"] = $role->id;
+			}
 		}
-		if(!empty($users)) array_push($users_notary, $users);
-		if(!empty($substitute)) array_push($users_notary, $substitute);
+
+		if(!empty($substitute)) array_push($users, $substitute);
+		
 		foreach($users as $user){
-			try{
+			try{			
 				$userCtrl = new UsersController();
 				$u = $userCtrl->signup(to_object($user))["users"];
-				$roleName = $roles->where("id", $u["role_id"])->first();
-				preg_match("/notary_(.*)/", $roleName->name, $matches);
-				$notary_office[$matches[1]."_id"] = $relationships[] = $u["id"];
-				if($matches[1] == "users") $response["notary_office"][$matches[1]][] = $u;
-				else $response["notary_office"][$matches[1]] = $u;
+				$relationships[] = $u["id"];
+				$response["notary_office"][$u["id"]] = $u;
+
+				
 			} catch (\Exception $e) {
 				$error = $e;
 			}
 		}
-
 		if(!$error) 
 		foreach ($relationships as $user_id) {
-			if($notary){
 				ConfigUserNotaryOffice::create([
 					"notary_office_id" => $id,
 					"user_id" => $user_id
 				]);
-			}else{
-				var_dump($user_id);
-				User::where("id", $user_id)->delete();
-			}
+		
 		}
 
 		if($error) throw $error;
