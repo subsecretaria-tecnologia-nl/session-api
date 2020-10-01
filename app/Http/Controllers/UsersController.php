@@ -173,7 +173,7 @@ class UsersController extends Controller
 	}
 
 	public function signup($request=null){
-		if(!$request) $request = request()->all();
+		if(!$request) $request = to_object(request()->all());
 
 		$roles = CatalogUserRoles::where('id', $request->role_id)->first();
 		if($roles->name=='Funcionario' || $roles->name=='Notario'){
