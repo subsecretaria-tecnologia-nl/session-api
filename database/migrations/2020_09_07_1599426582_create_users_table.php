@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
 					$table->string('rfc',15);
 					$table->string('phone',15);
 					$table->integer('status')->default(1);
-					$table->integer('created_by',11)->nullable()->default('NULL');
+					$table->integer('created_by',11)->nullable()->default(0);
 					$table->timestamp('created_at')->default('CURRENT_TIMESTAMP');
 					$table->timestamp('updated_at')->nullable();
 					$table->timestamp('deleted_at')->nullable();
