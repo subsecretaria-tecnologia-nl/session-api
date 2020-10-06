@@ -56,6 +56,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	{
 			return [];
 	}
+	public function isnotary(){
+		return $this->belongsToMany('App\Models\NotaryOffice', 'App\Models\ConfigUserNotaryOffice', 'user_id', 'notary_office_id');
+	}
 	public function permission(){
 		return $this->belongsToMany('App\Models\CatalogUserAction', 'App\Models\UserPermission', 'user_id', 'action_id');
 	}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\ShowableException;
 use App\Models\CatalogTokenType;
 use App\Models\CatalogUserRoles;
+use App\Models\NotaryOffice;
 use App\Models\User;
 use App\Models\UserHistory;
 use App\Models\UserRelationships;
@@ -30,6 +31,7 @@ class UsersController extends Controller
 	public function editUser(Request $request){
 		$user = User::where('email', $request->input("email"))
 		->orWhere('username', 'like', '%' . $request->input("username") . '%')->first();
+
 		if ($user == true) {
 			throw new ShowableException(401, "User already exists");
 		}
@@ -48,7 +50,6 @@ class UsersController extends Controller
 		$id = auth()->user()->id;
 
 		$user = User::find($id);
-
 		if (!$user) {
 			return [
 				'success' => false,
@@ -115,9 +116,21 @@ class UsersController extends Controller
 		}
 	}
 
-	public function getSubUser(Request $request){
-		$user = User::where('id', $request->id)->first();
+	public function getSubUser(){
+		$id = request()->id;
+		$user = User::where('id', $id)->first();
 		$permission = $user->permission()->get()->first();
+		$isNotary = $user->isnotary()->get()->first();	
+		
+	
+		if($isNotary){
+			$notary = NotaryOffice::where("id", $isNotary->id)->with(["users"])->first();
+			if(!$notary)
+				throw new ShowableException(404, "Notary Office ID ($id) does not found.");
+			return [
+				"notary_office_users" => $notary->users->toArray()
+			];
+		}
 
 		if($permission->name=="Superadmin"){
 			$subusers= User::all();
