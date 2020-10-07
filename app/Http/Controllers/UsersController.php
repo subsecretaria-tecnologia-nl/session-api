@@ -29,17 +29,10 @@ class UsersController extends Controller
 	}
 
 	public function editUser(Request $request){
-		$user = User::where('email', $request->input("email"))
-		->orWhere('username', 'like', '%' . $request->input("username") . '%')->first();
-
-		if ($user == true) {
-			throw new ShowableException(401, "User already exists");
-		}
-
-
+		$id = auth()->user()->id;
 		$validator = Validator::make($request->all(), [
-			'email' => 'string|email|max:255',
-			'username'=>'string',
+			'email' => 'string|email|max:255|unique:users,email,'.$id,
+			'username'=>'string|unique:users,username,'.$id,
 
 		]);
 
@@ -47,7 +40,6 @@ class UsersController extends Controller
 			throw new ShowableException(401, $validator->errors());
 		}
 
-		$id = auth()->user()->id;
 
 		$user = User::find($id);
 		if (!$user) {
@@ -77,18 +69,14 @@ class UsersController extends Controller
 
 	public function editSubUser(Request $request){	
 
-		$user = User::where('email', $request->email)
-		->orWhere('username', 'like', '%' .  $request->username . '%')->first();
-
-		if ($user == true) {
-			throw new ShowableException(401, "Sorry, User already exists");				
-		}		
-
 		$validator = Validator::make($request->all(), [
-			'email' => 'string|email|max:255',
-			'username'=>'string',
+			'email' => 'string|email|max:255|unique:users,email,'.$request->id,
+			'username'=>'string|unique:users,username,'.$request->id,
 
 		]);
+		if($validator->fails()){
+			throw new ShowableException(401, $validator->errors());
+		}
 
 		$user = User::find($request->id);		
 		$user->function = "Editar sub usuario";
