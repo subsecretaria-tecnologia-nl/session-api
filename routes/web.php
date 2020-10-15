@@ -42,6 +42,8 @@ $router->group(["middleware" => "json.schema.validation"], function () use ($rou
 		$router->put("/{id}", "NotaryOfficesController@updateNotary");
 		$router->post("/{id}/users", "NotaryOfficesController@createUsersNotary");
 		$router->put("/{id}/users/{user_id}", "NotaryOfficesController@updateNotaryUsers");
+		$router->get("/roles", "NotaryOfficesController@getRoles");
+		
 
 	});
 });

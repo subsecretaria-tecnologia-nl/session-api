@@ -23,25 +23,18 @@ class NotaryOfficesController extends Controller
 		extract($notary_office, EXTR_PREFIX_SAME, "notary");
 		unset($notary_office["titular"], $notary_office["substitute"], $notary_office["users"]);
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
+		
 
-		if(!empty($titular))
+		if(!empty($titular) || $notary_office->titular_id !=null)
 			throw new ShowableException(422, "Only can exits one titular.");
 
-		if(!empty($substitute)){	
+		if(!empty($substitute) || $notary_office->substitute_id !=null){	
 			if(count($substitute) > 1 && ($notaryOffice->substitute_id >0)){
 				throw new ShowableException(422, "Only can exits one substitute.");	
-			}else{
-				$role =	CatalogUserRoles::notaryrole('substitute')->first();				
-					$substitute["role_id"] = $role->id;		
 			}
+		
 		}
 
-		if(!empty($users)){	
-			$role =	CatalogUserRoles::notaryrole('users')->first();		
-			foreach($users as $key => $user){
-				$users[$key]["role_id"] = $role->id;
-			}
-		}
 
 		if(!empty($substitute)) array_push($users, $substitute);
 		
@@ -85,18 +78,7 @@ class NotaryOfficesController extends Controller
 		unset($notary_office["titular"], $notary_office["substitute"], $notary_office["users"]);
 	
 		$roles = CatalogUserRoles::where("name", "LIKE", "notary_%")->get();
-		foreach($roles as $rol){
-			preg_match("/notary_(.*)/", $rol->name, $matches);
-			if($matches[1] == "users" && isset($notary_users)){
-				foreach($notary_users as $ind => $user){
-					$notary_users[$ind]["role_id"] = $rol->id;
-				}
-			}else{
-				if(!empty(${$matches[1]})) ${$matches[1]}["role_id"] = $rol->id;
-			}
-		}
-	
-
+		
 
 		if(NotaryOffice::where("notary_number", $notary_office["notary_number"])->count() > 0)
 			throw new ShowableException(422, "The Notary Number ({$notary_office["notary_number"]}) already exists.");
@@ -153,6 +135,10 @@ class NotaryOfficesController extends Controller
 		return [
 			"notary_office" => $notary->toArray()
 		];
+	}
+	public function getRoles(){
+		$roles = CatalogUserRoles::all()->toArray();
+		return $roles;
 	}
 
 	public function getUsers($id){
