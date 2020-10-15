@@ -28,7 +28,7 @@ class NotaryOfficesController extends Controller
 		if(!empty($titular) || $notaryOffice->titular_id !=null)
 			throw new ShowableException(422, "Only can exits one titular.");
 
-		if(!empty($substitute) || $notary_office->substitute_id !=null){	
+		if(!empty($substitute) || $notaryOffice->substitute_id !=null){	
 			if(count($substitute) > 1 && ($notaryOffice->substitute_id >0)){
 				throw new ShowableException(422, "Only can exits one substitute.");	
 			}
