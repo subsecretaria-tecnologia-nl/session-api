@@ -20,6 +20,7 @@ class NotaryOfficesController extends Controller
 		$error = null;
 		$notary = null;	
 		$users = to_object($notary_office["users"]);
+		dd($users);
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
 
 		$role = CatalogUserRoles::where("id", $users->role_id)->first();
