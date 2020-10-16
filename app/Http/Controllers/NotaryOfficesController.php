@@ -63,7 +63,7 @@ class NotaryOfficesController extends Controller
 
 		if($error) throw $error;
 
-		$response["notary_office"] = array_merge($notary_office, $response["notary_office"]);
+		$response["notary_office"] = array_merge($users, $response["notary_office"]);
 	
 		return $response;
 
