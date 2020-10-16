@@ -13,13 +13,13 @@ use Illuminate\Http\Request;
 class NotaryOfficesController extends Controller
 {
 	public function createUsersNotary($id){
-		$notary_office= request()->notary_office;
+		$users= request()->users;
 		$response = [];
 		$relationships = [];
 		$addUsers=[];
 		$error = null;
 		$notary = null;	
-		$users = to_object($notary_office["users"]);
+		$users = to_object($users);
 		dd($users);
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
 
