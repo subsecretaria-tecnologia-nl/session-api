@@ -23,7 +23,7 @@ class NotaryOfficesController extends Controller
 		extract($notary_office, EXTR_PREFIX_SAME, "notary");
 		unset($notary_office["users"]);
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
-		$role = CatalogUserRoles::where("id", $users->rol_id)->first();
+		$role = CatalogUserRoles::where("id", $users->role_id)->first();
 		
 		
 
