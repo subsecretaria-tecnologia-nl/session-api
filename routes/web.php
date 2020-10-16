@@ -37,13 +37,12 @@ $router->group(["middleware" => "json.schema.validation"], function () use ($rou
 	$router->group(["prefix" => "notary-offices"], function() use ($router){
 		$router->post("/", "NotaryOfficesController@signup");
 		$router->get("/", "NotaryOfficesController@getMany");
+		$router->get("/roles", "NotaryOfficesController@getRoles");
 		$router->get("/{id}", "NotaryOfficesController@getSingle");
 		$router->get("/{id}/users", "NotaryOfficesController@getUsers");
 		$router->put("/{id}", "NotaryOfficesController@updateNotary");
 		$router->post("/{id}/users", "NotaryOfficesController@createUsersNotary");
-		$router->put("/{id}/users/{user_id}", "NotaryOfficesController@updateNotaryUsers");
-		$router->get("/roles", "NotaryOfficesController@getRoles");
-		
+		$router->put("/{id}/users/{user_id}", "NotaryOfficesController@updateNotaryUsers");	
 
 	});
 });

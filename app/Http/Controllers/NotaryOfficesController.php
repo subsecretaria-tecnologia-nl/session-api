@@ -13,43 +13,45 @@ use Illuminate\Http\Request;
 class NotaryOfficesController extends Controller
 {
 	public function createUsersNotary($id){
-		$notary_office= request()->notary_office;
+		$users= request()->users;
 		$response = [];
 		$relationships = [];
-		$notary_users=[];
 		$addUsers=[];
 		$error = null;
 		$notary = null;	
-		extract($notary_office, EXTR_PREFIX_SAME, "notary");
-		unset($notary_office["titular"], $notary_office["substitute"], $notary_office["users"]);
+		$users = to_object($users);
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
-		
 
-		if(!empty($titular) || $notary_office->titular_id !=null)
-			throw new ShowableException(422, "Only can exits one titular.");
+		$role = CatalogUserRoles::where("id", $users->role_id)->first();
+	
 
-		if(!empty($substitute) || $notary_office->substitute_id !=null){	
-			if(count($substitute) > 1 && ($notaryOffice->substitute_id >0)){
+		if($notaryOffice->titular_id !=null){
+			if($role->name=="notary_titular"){
+				throw new ShowableException(422, "Only can exits one titular.");
+
+			}
+
+		}
+
+		if($notaryOffice->substitute_id !=null){	
+			if($role->name=="notary_substitute"){
 				throw new ShowableException(422, "Only can exits one substitute.");	
 			}
 		
 		}
 
-
-		if(!empty($substitute)) array_push($users, $substitute);
 		
-		foreach($users as $user){
-			try{			
-				$userCtrl = new UsersController();
-				$u = $userCtrl->signup(to_object($user))["users"];
-				$relationships[] = $u["id"];
-				$response["notary_office"][$u["id"]] = $u;
+		try{			
+			$userCtrl = new UsersController();
+			$u = $userCtrl->signup($users);
+			$relationships[] = $u["users"]["id"];
+			$response["notary_office"][$u["users"]["id"]] = $u;
 
-				
-			} catch (\Exception $e) {
-				$error = $e;
-			}
+			
+		} catch (\Exception $e) {
+			$error = $e;
 		}
+		
 		if(!$error) 
 		foreach ($relationships as $user_id) {
 				ConfigUserNotaryOffice::create([
@@ -61,7 +63,7 @@ class NotaryOfficesController extends Controller
 
 		if($error) throw $error;
 
-		$response["notary_office"] = array_merge($notary_office, $response["notary_office"]);
+		$response["notary_office"] = array_merge($response["notary_office"]);
 	
 		return $response;
 
