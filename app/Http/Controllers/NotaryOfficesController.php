@@ -21,22 +21,27 @@ class NotaryOfficesController extends Controller
 		$error = null;
 		$notary = null;	
 		extract($notary_office, EXTR_PREFIX_SAME, "notary");
-		unset($notary_office["titular"], $notary_office["substitute"], $notary_office["users"]);
+		unset($notary_office["users"]);
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
+		$role = CatalogUserRoles::where("id", $users->rol_id)->first();
+		
 		
 
-		if(!empty($titular) || $notaryOffice->titular_id !=null)
-			throw new ShowableException(422, "Only can exits one titular.");
+		if($notaryOffice->titular_id !=null){
+			if($role->name=="notary_titular"){
+				throw new ShowableException(422, "Only can exits one titular.");
 
-		if(!empty($substitute) || $notaryOffice->substitute_id !=null){	
-			if(count($substitute) > 1 && ($notaryOffice->substitute_id >0)){
+			}
+
+		}
+
+		if($notaryOffice->substitute_id !=null){	
+			if($role->name=="notary_substitute"){
 				throw new ShowableException(422, "Only can exits one substitute.");	
 			}
 		
 		}
 
-
-		if(!empty($substitute)) array_push($users, $substitute);
 		
 		foreach($users as $user){
 			try{			
