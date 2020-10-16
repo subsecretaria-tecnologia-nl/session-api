@@ -16,17 +16,14 @@ class NotaryOfficesController extends Controller
 		$notary_office= request()->notary_office;
 		$response = [];
 		$relationships = [];
-		$notary_users=[];
 		$addUsers=[];
 		$error = null;
 		$notary = null;	
-		extract($notary_office, EXTR_PREFIX_SAME, "notary");
-		unset($notary_office["users"]);
-
+		$users = to_object($notary_office["users"]);
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
 
-		$role = CatalogUserRoles::where("id", $users["role_id"])->first();
-		
+		$role = CatalogUserRoles::where("id", $users->role_id)->first();
+	
 
 		if($notaryOffice->titular_id !=null){
 			if($role->name=="notary_titular"){
@@ -44,18 +41,17 @@ class NotaryOfficesController extends Controller
 		}
 
 		
-		foreach($users as $user){
-			try{			
-				$userCtrl = new UsersController();
-				$u = $userCtrl->signup(to_object($user))["users"];
-				$relationships[] = $u["id"];
-				$response["notary_office"][$u["id"]] = $u;
+		try{			
+			$userCtrl = new UsersController();
+			$u = $userCtrl->signup($users);
+			$relationships[] = $u["users"]["id"];
+			$response["notary_office"][$u["users"]["id"]] = $u;
 
-				
-			} catch (\Exception $e) {
-				$error = $e;
-			}
+			
+		} catch (\Exception $e) {
+			$error = $e;
 		}
+		
 		if(!$error) 
 		foreach ($relationships as $user_id) {
 				ConfigUserNotaryOffice::create([
