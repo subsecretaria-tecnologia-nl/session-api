@@ -74,4 +74,5 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	public function tokens(){
 		return $this->hasMany('App\Models\UserToken', 'user_id', 'id');
 	}	
+
 }

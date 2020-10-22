@@ -98,6 +98,8 @@ class UsersController extends Controller
 	public function getUser(Request $request){
 		$user = JWTAuth::user();
 		if (count((array)$user) > 0) {
+			$role =CatalogUserRoles::nombrerol($user->role_id)->first();
+			$user->role_name = $role->name;
 			return [ "user" => $user ];
 		} else {
 			throw new ShowableException(401, "Unauthorized");
