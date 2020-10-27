@@ -54,6 +54,7 @@
         "local-test" : "phpunit --coverage-text",
         "test" : "phpunit --coverage-clover=build/logs/clover.xml",
         "test-coverage" : "php-coveralls -v",
+        "db-migrate" : "php artisan migrate:fresh --seed",
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ]

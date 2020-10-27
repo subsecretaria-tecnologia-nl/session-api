@@ -10,12 +10,12 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
 
-					$table->increments(id);
+					$table->increments("id");
 					$table->string('username',45);
 					$table->string('email',150);
 					$table->string('password',250);
-					$table->integer('role_id',11);
-					$table->integer('config_id',11);
+					$table->integer('role_id');
+					$table->integer('config_id');
 					$table->string('name',45);
 					$table->string('mothers_surname',45);
 					$table->string('fathers_surname',45);
@@ -23,8 +23,8 @@ class CreateUsersTable extends Migration
 					$table->string('rfc',15);
 					$table->string('phone',15);
 					$table->integer('status')->default(1);
-					$table->integer('created_by',11)->nullable()->default(0);
-					$table->timestamp('created_at')->default('CURRENT_TIMESTAMP');
+					$table->integer('created_by')->nullable();
+					$table->timestamp('created_at');
 					$table->timestamp('updated_at')->nullable();
 					$table->timestamp('deleted_at')->nullable();
 

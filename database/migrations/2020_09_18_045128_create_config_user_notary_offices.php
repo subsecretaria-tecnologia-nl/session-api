@@ -17,8 +17,8 @@ class CreateConfigUserNotaryOffices extends Migration
             $table->integer("user_id");
             $table->integer("notary_office_id");
             $table->unique("user_id");
-            $table->foreign("user_id")->references("id")->on("users");
-            $table->foreign("notary_office_id")->references("id")->on("notary_offices");
+            // $table->foreign("user_id")->references("id")->on("users");
+            // $table->foreign("notary_office_id")->references("id")->on("notary_offices");
         });
     }
 

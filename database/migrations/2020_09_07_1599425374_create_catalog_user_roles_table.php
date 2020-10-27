@@ -10,10 +10,9 @@ class CreateCatalogUserRolesTable extends Migration
     {
         Schema::create('catalog_user_roles', function (Blueprint $table) {
 
-					$table->increments(id);
+					$table->increments("id");
 					$table->string('name',45);
 					$table->string('description',150);
-					$table->primary('id');
 
         });
     }

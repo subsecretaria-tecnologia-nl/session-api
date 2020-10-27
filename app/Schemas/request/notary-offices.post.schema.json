@@ -35,6 +35,11 @@
 					"minLength": 3,
 					"maxLength": 25
 				},
+				"outdoor-number" : {
+					"type" : "string",
+					"minLength": 1,
+					"maxLength": 25
+				},
 				"district" : {
 					"type" : "string",
 					"minLength": 0,
@@ -59,9 +64,19 @@
 				"users" : {
 					"type" : "array",
 					"items" : { "$ref" : "#/definitions/users" }
+				},
+				"sat_constancy_file" : {
+					"type" : "string",
+					"pattern" : "^data:application/pdf;base64,(.+)$",
+					"minLength" : 34
+				},
+				"notary_constancy_file" : {
+					"type" : "string",
+					"pattern" : "^data:application/pdf;base64,(.+)$",
+					"minLength" : 34
 				}
 			},
-			"required" : [ "notary_number", "phone", "fax", "email", "street", "number", "zip", "titular" ]
+			"required" : [ "notary_number", "phone", "fax", "email", "street", "number", "zip", "titular", "sat_constancy_file", "notary_constancy_file" ]
 		}
 	},
 	"required" : ["notary_office"],

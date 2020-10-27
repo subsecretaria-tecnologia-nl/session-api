@@ -9,7 +9,7 @@ class CreateUserActionPermissionTable extends Migration
     public function up()
     {
         Schema::create('user_action_permission', function (Blueprint $table) {
-					$table->integer('user_id',11);
+					$table->integer('user_id');
 					$table->string('action_id',11);
 
         });

@@ -16,7 +16,10 @@ class NotaryOffice extends Model
 		"city_id",
 		"zip",
 		"titular_id",
-		"substitute_id"
+		"substitute_id",
+		"outdoor-number",
+		"sat_constancy_file",
+		"notary_constancy_file"
 	];
 
 	public function titular () {

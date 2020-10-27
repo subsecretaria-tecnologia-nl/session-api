@@ -23,14 +23,18 @@ class CreateNotaryOffices extends Migration
             $table->text("email");
             $table->text("street");
             $table->text("number");
+            $table->text("outdoor-number")->default(null);
             $table->text("district");
             $table->text("federal_entity_id");
             $table->text("city_id");
+            $table->integer("comunity_id");
             $table->text("zip");
+            $table->longText("sat_constancy_file");
+            $table->longText("notary_constancy_file");
             $table->integer("status")->default(1);
             $table->integer("created_by")->default(null);
             $table->timestamps();
-            $table->foreign("titular_id")->references("id")->on("users");
+            // $table->foreign("titular_id")->references("id")->on("users");
         });
     }
 
