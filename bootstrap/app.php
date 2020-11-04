@@ -84,7 +84,7 @@ $app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
 */
 
 $app->middleware([
-    // App\Http\Middleware\ExampleMiddleware::class
+    Fruitcake\Cors\HandleCors::class,
     App\Http\Middleware\ResponseMiddleware::class,
 ]);
 
@@ -114,6 +114,7 @@ $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(\Illuminate\Auth\Passwords\PasswordResetServiceProvider::class);
 $app->register(\Illuminate\Mail\MailServiceProvider::class);
 $app->register(Illuminate\Notifications\NotificationServiceProvider::class);
+$app->register(Fruitcake\Cors\CorsServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 // $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 /*
