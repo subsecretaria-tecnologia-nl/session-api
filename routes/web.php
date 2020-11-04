@@ -1,9 +1,5 @@
 <?php
 
-$router->options("*", function(){
-	return true;
-});
-
 $router->group(["middleware" => "json.schema.validation", "prefix" => (getenv("APP_PREFIX") ?? "")], function () use ($router) {
 	$router->get('/', function() {
 		return "THIS ROUTE DOES NOT EXISTS.";
