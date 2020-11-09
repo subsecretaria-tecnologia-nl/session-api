@@ -9,6 +9,10 @@ use App\Models\ConfigUserNotaryOffice;
 use App\Models\NotaryOffice;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Message;
+use Illuminate\Mail\Mailer;
+use App\Notifications\NotaryNotification;
+use Illuminate\Notifications\Notifiable;
 
 class NotaryOfficesController extends Controller
 {
@@ -46,7 +50,7 @@ class NotaryOfficesController extends Controller
 			$u = $userCtrl->signup($users);
 			$relationships[] = $u["users"]["id"];
 			$response["notary_office"][$u["users"]["id"]] = $u;
-
+			$this->notify($u["id"], $user["password"]);	
 			
 		} catch (\Exception $e) {
 			$error = $e;
@@ -105,6 +109,7 @@ class NotaryOfficesController extends Controller
 				$roleName = $roles->where("id", $u["role_id"])->first();
 				preg_match("/notary_(.*)/", $roleName->name, $matches);
 				$notary_office[$matches[1]."_id"] = $relationships[] = $u["id"];
+				$this->notify($u["id"], $user["password"]);								
 				if($matches[1] == "users") $response["notary_office"][$matches[1]][] = $u;
 				else $response["notary_office"][$matches[1]] = $u;
 			} catch (\Exception $e) {
@@ -124,7 +129,6 @@ class NotaryOfficesController extends Controller
 				User::where("id", $user_id)->delete();
 			}
 		}
-
 		if($error) throw $error;
 
 		$response["notary_office"] = array_merge($notary_office, $response["notary_office"]);
@@ -222,5 +226,11 @@ class NotaryOfficesController extends Controller
 		return $response;
 
 
+	}
+	public function notify($id, $pass){
+		$user = User::findOrFail($id);
+		$username= $user->username;		
+
+		$user->notify(new NotaryNotification($user, $username, $pass));
 	}
 }

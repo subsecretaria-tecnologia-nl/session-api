@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\NotaryNotification;
 use App\Notifications\ResetPasswordNotification;
 use App\Observers\HistoryObserver;
 use Illuminate\Auth\Authenticatable;
@@ -49,6 +50,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	{
 			$this->notify(new ResetPasswordNotification($token));
 	}
+
 	public function getJWTIdentifier()
 	{
 			return $this->getKey();
