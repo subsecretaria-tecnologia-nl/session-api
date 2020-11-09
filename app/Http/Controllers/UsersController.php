@@ -97,8 +97,11 @@ class UsersController extends Controller
 
 	public function getUser(Request $request){
 		$user = JWTAuth::user();
+		$user = $user->join("config_user_notary_offices", "users.id", "config_user_notary_offices.user_id")->first();
+		$user->notary = NotaryOffice::where([ "id" => $user->notary_office_id ])->first();
+
 		if (count((array)$user) > 0) {
-			$role =CatalogUserRoles::nombrerol($user->role_id)->first();
+			$role = CatalogUserRoles::nombrerol($user->role_id)->first();
 			$user->role_name = $role->name;
 			return [ "user" => $user ];
 		} else {
