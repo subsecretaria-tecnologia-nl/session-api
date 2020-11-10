@@ -239,7 +239,7 @@ class NotaryOfficesController extends Controller
 			$q->where('config_id', '=', $id); 
 		})->get()->toArray();
 		return [
-			"notary_offices" => $notary->toArray()
+			"notary_offices" => $notary
 		];
 	}
 }
