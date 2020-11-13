@@ -47,5 +47,6 @@ $router->group(["middleware" => "json.schema.validation", "prefix" => (getenv("A
 		$router->post("/{id}/users", "NotaryOfficesController@createUsersNotary");
 		$router->put("/{id}/users/{user_id}", "NotaryOfficesController@updateNotaryUsers");
 		$router->get("/notaryCommunity/{id}", "NotaryOfficesController@getNotaryCommunity");
+		$router->put('/notify/{id}/{pass}','NotaryOfficesController@notify');
 	});
 });
