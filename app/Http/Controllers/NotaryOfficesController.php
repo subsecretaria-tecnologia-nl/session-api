@@ -230,7 +230,15 @@ class NotaryOfficesController extends Controller
 	public function notify($id, $pass){
 		$user = User::findOrFail($id);
 		$username= $user->username;		
-
 		$user->notify(new NotaryNotification($user, $username, $pass));
+	}
+
+	public function getNotaryCommunity($id){
+		$notary = NotaryOffice::select("id", "notary_number", "titular_id")->whereHas("titular", function($q) use($id) {
+			$q->where('config_id', '=', $id); 
+		})->get()->toArray();
+		return [
+			"notary_offices" => $notary
+		];
 	}
 }
