@@ -230,7 +230,6 @@ class NotaryOfficesController extends Controller
 	public function notify($id, $pass){
 		$user = User::findOrFail($id);
 		$username= $user->username;		
-
 		$user->notify(new NotaryNotification($user, $username, $pass));
 	}
 
