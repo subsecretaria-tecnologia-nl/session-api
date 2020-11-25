@@ -96,7 +96,7 @@ class DivisasController extends Controller
     }
 
     public function getDivisasSave(){
-        $divisas = Divisas::get();
+        $divisas = Divisa::get();
 		return [
 			"divisas" => $divisas->toArray()
 		];
