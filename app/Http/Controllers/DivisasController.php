@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ShowableException;
+use App\Models\Divisa;
+use Illuminate\Http\Request;
+
 class DivisasController extends Controller
 {
     /**
@@ -43,6 +47,59 @@ class DivisasController extends Controller
 
         return $divisas;
 
+    }
+    public function saveDivisas(Request $request){
+        $error =null;
+        $divisas = to_object($request->divisas);
+        
+        foreach ($divisas as $value) {
+         
+            try {
+                $divisa=Divisa::create([
+                        "descripcion" => $value->descripcion,
+                        "parametro" => $value->parametro
+                ]);
+            } catch (\Exception $e) {
+                $error = $e;
+            }          
+    
+        }
+
+        if($error) throw $error;
+
+		return [
+			'success' => true,
+		    'status'=> 200
+		];
+    }
+
+    public function deleteDivisas(Request $request){
+        $error =null;
+        $divisas = to_object($request->divisas);
+        
+        foreach ($divisas as $value) {
+         
+            try {
+                $divisa=Divisa::where('parametro', $value->parametro)->delete();
+            } catch (\Exception $e) {
+                $error = $e;
+            }          
+    
+        }
+
+        if($error) throw $error;
+
+		return [
+			'success' => true,
+		    'status'=> 200
+		];
+    }
+
+    public function getDivisasSave(){
+        $divisas = Divisas::get();
+		return [
+			"divisas" => $divisas->toArray()
+		];
     }
 
 		
