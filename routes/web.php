@@ -49,4 +49,14 @@ $router->group(["middleware" => "json.schema.validation", "prefix" => (getenv("A
 		$router->get("/notaryCommunity/{id}", "NotaryOfficesController@getNotaryCommunity");
 		$router->put('/notify/{id}/{pass}','NotaryOfficesController@notify');
 	});
+	$router->group(["prefix" => "divisas"], function() use ($router){
+		$router->get("/", "DivisasController@getDivisas");
+		$router->post("/saveDivisas", "DivisasController@saveDivisas");
+		$router->post("/deleteDivisas", "DivisasController@deleteDivisas");
+		$router->get("/getDivisasSave", "DivisasController@getDivisasSave");
+
+
+
+		
+	});
 });
