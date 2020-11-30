@@ -43,6 +43,15 @@ class DivisasController extends Controller
         array(
             "parametro"=>"SF60632",
             "descripcion"=>"Dólar Canadiense."
+        ),
+        array(
+            "parametro"=>"SP68257",
+            "descripcion"=>"Valor de UDIS."
+        ),
+        array(
+            "parametro"=>"SF290383",
+            "descripcion"=>"Cotización de las divisas que conforman la canasta del DEG 1/ 
+            y del DEG respecto al Peso mexicano 2/ Yuan chino."
         ));
 
         return $divisas;
