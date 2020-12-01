@@ -81,7 +81,7 @@ class AuthController extends Controller
 			'token_type'=> $tokenType->name,
 			'expires_in' =>$date,
 			'seconds'=>$seconds,
-			'user'=> auth()->user()->name,
+			'user'=> auth()->user()->username,
 			'status'=> 200,
 		];
 	}
