@@ -47,10 +47,11 @@ class NotaryOfficesController extends Controller
 		
 		try{			
 			$userCtrl = new UsersController();
+			dd($users->password);
 			$u = $userCtrl->signup($users);
 			$relationships[] = $u["users"]["id"];
 			$response["notary_office"][$u["users"]["id"]] = $u;
-			$this->notify($u["id"], $user["password"]);	
+			$this->notify($u["users"]["id"], $users->password);	
 			
 		} catch (\Exception $e) {
 			$error = $e;
