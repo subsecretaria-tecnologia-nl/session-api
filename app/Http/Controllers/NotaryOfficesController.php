@@ -47,7 +47,6 @@ class NotaryOfficesController extends Controller
 		
 		try{			
 			$userCtrl = new UsersController();
-			dd($users->password);
 			$u = $userCtrl->signup($users);
 			$relationships[] = $u["users"]["id"];
 			$response["notary_office"][$u["users"]["id"]] = $u;
