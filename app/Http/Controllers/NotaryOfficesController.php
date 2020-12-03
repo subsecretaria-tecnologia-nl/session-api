@@ -130,6 +130,9 @@ class NotaryOfficesController extends Controller
 			}
 		}
 		if($error) throw $error;
+		
+		unset($notary_office["sat_constancy_file"]);
+		unset($notary_office["notary_constancy_file"]);
 
 		$response["notary_office"] = array_merge($notary_office, $response["notary_office"]);
 	
