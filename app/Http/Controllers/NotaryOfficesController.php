@@ -50,7 +50,7 @@ class NotaryOfficesController extends Controller
 			$u = $userCtrl->signup($users);
 			$relationships[] = $u["users"]["id"];
 			$response["notary_office"][$u["users"]["id"]] = $u;
-			$this->notify($u["users"]["id"], $users->password);	
+			// $this->notify($u["users"]["id"], $users->password);	
 			
 		} catch (\Exception $e) {
 			$error = $e;
@@ -109,7 +109,7 @@ class NotaryOfficesController extends Controller
 				$roleName = $roles->where("id", $u["role_id"])->first();
 				preg_match("/notary_(.*)/", $roleName->name, $matches);
 				$notary_office[$matches[1]."_id"] = $relationships[] = $u["id"];
-				$this->notify($u["id"], $user["password"]);								
+				// $this->notify($u["id"], $user["password"]);								
 				if($matches[1] == "users") $response["notary_office"][$matches[1]][] = $u;
 				else $response["notary_office"][$matches[1]] = $u;
 			} catch (\Exception $e) {
