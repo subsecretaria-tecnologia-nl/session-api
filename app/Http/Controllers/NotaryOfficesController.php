@@ -244,4 +244,30 @@ class NotaryOfficesController extends Controller
 			"notary_offices" => $notary
 		];
 	}
+
+	public function getFileNotary($id){		
+		$user = User::where('id', $id)->first();
+		$isNotary = $user->isnotary()->get()->first();
+
+		$pdf = NotaryOffice::find($isNotary->id);
+		$pdf = $pdf->sat_constancy_file;
+
+		$pdf = str_replace('data:application/pdf;base64,', '', $pdf);
+		$pdf = str_replace(' ', '+', $pdf);
+		$pdf = base64_decode($pdf);
+
+		$attach = "file.pdf";
+
+		//   \Storage::disk('local')->put($attach,  $pdf);
+		$path = storage_path('app/'.$attach);
+		file_put_contents($path, $pdf);
+		header("Content-type: application/pdf"); 
+  
+		readfile($path);
+		
+		// return response()->download($path);
+
+		
+
+	}
 }
