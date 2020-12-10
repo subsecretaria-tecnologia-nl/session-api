@@ -245,18 +245,41 @@ class NotaryOfficesController extends Controller
 		];
 	}
 
-	public function getFileNotary($id){		
-		$user = User::where('id', $id)->first();
+	public function getFileNotary(Request $request){		
+		$user = User::where('id', $request->id)->first();
 		$isNotary = $user->isnotary()->get()->first();
 
 		$notary = NotaryOffice::find($isNotary->id);
-		$pdf_sat = $notary->sat_constancy_file;
-		$pdf_notary = $notary->notary_constancy_file;
+		if($request->type=='sat'){
+			$pdf_sat = $notary->sat_constancy_file;
+			$pdf_sat = str_replace('data:application/pdf;base64,', '', $pdf_sat);
+			$pdf_sat = str_replace(' ', '+', $pdf_sat);
+			$pdf_sat = base64_decode($pdf_sat);
+	  
+			$attach_sat = "sat_constancia_".$request->id.".pdf";
+			
+	  
+			$path = storage_path('app/'.$attach_sat);
+			\Storage::disk('local')->put($attach_sat,  $pdf_sat);
+			return $path;
+			
+			
+		}else{			
+			$pdf_notary = $notary->notary_constancy_file;	
+			$pdf_notary = str_replace('data:application/pdf;base64,', '', $pdf_notary);
+			$pdf_notary = str_replace(' ', '+', $pdf_notary);
+			$pdf_notary = base64_decode($pdf_notary);
+	  
+			$attach_notary = "notaria_constancia_".$request->id.".pdf";
+			
+	  
+			$path = storage_path('app/'.$attach_notary);
+			\Storage::disk('local')->put($attach_notary,  $pdf_notary);
+			return $path;
+			
+		}
+	
 
-		return [
-			"notary_file"=>$pdf_notary,
-			"sat_file"=>$pdf_sat
-		];	
 
 	}
 }
