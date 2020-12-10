@@ -131,8 +131,9 @@ class AuthController extends Controller
 			"password" => $password
 		]);
 
+		$emailValidator = preg_match('/([\w\.\-]+)(?<!\.)@([\w\-]+)\.([\w]{2,9})/', $username);
 		$validator = Validator::make($r->all("email", "password"), [
-			'email' => 'required|string|email|max:255',
+			'email' => $emailValidator ? "required|string|email|max:255" : "required|string|max:255",
 			'password' => [
 				'required',
 				'string',
@@ -146,7 +147,11 @@ class AuthController extends Controller
 		}
 
 		try {
-			if (!$token = JWTAuth::attempt(array("email" => $username, "password" => $password))) {
+			$data = [
+				($emailValidator ? "email" : "username") => $username,
+				"password" => $password
+			];
+			if (!$token = JWTAuth::attempt($data)) {
 				return $this->onUnauthorized();
 			}
 		} catch (JWTException $e) {
