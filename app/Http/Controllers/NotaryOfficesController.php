@@ -257,4 +257,19 @@ class NotaryOfficesController extends Controller
 			"notary_offices" => $notary
 		];
 	}
+
+	public function getFileNotary($id){		
+		$user = User::where('id', $id)->first();
+		$isNotary = $user->isnotary()->get()->first();
+
+		$notary = NotaryOffice::find($isNotary->id);
+		$pdf_sat = $notary->sat_constancy_file;
+		$pdf_notary = $notary->notary_constancy_file;
+
+		return [
+			"notary_file"=>$pdf_notary,
+			"sat_file"=>$pdf_sat
+		];	
+
+	}
 }
