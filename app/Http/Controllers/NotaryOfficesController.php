@@ -7,6 +7,7 @@ use App\Http\Controllers\UsersController;
 use App\Models\CatalogUserRoles;
 use App\Models\ConfigUserNotaryOffice;
 use App\Models\NotaryOffice;
+use App\Models\Mailmessages;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
@@ -51,7 +52,9 @@ class NotaryOfficesController extends Controller
 			$relationships[] = $u["users"]["id"];
 			$response["notary_office"][$u["users"]["id"]] = $u;
 			try {
-				$this->notify($u["users"]["id"], $users->password);					
+				//$this->notify($u["users"]["id"], $users->password);					
+				$answer = $this->notifyTable($u["users"]["id"], $users->password);	
+				
 			} catch (\Exception $e) {
 				return ["status"=>403];
 			}
@@ -118,7 +121,7 @@ class NotaryOfficesController extends Controller
 				else $response["notary_office"][$matches[1]] = $u;
 
 				try {
-					$this->notify($u["id"], $user["password"]);								
+					$answer = $this->notifyTable($u["id"], $user["password"]);								
 					
 				} catch (\Exception $e) {
 					return ["status"=>403];
@@ -248,6 +251,53 @@ class NotaryOfficesController extends Controller
 		$username= $user->username;		
 		$user->notify(new NotaryNotification($user, $username, $pass));
 	}
+
+	/**
+	 *	
+	 * notifyTable. Este metodo es para la modificacion de enviar el correo asincrono
+	 *
+	 * @param $id => para buscar el id en la tabla, $pass la constante del password
+	 *
+	 * @return 99 si error 100 si todo correcto
+	 *
+	 */
+	private function notifyTable($id, $pass){
+		
+		try{
+
+			$table = new Mailmessages();
+
+			$user = User::findOrFail($id);
+			$username= $user->email;
+
+
+			$content = "<p>Claves de acceso:</p><p>Correo:".$username."</p><p>Contraseña:".$pass."</p>";
+	        
+	        $template = file_get_contents(getenv("PORTAL_HOSTNAME")."/email/template");
+	        $template = str_replace(["#_EMAIL_PREHEADER_#"], "Usuario Registrado Notaria", $template);
+	        $template = str_replace(["#_EMAIL_HEADER_#"], "Tu cuenta ha sido registrada como usuario de notrario", $template);
+	        $template = str_replace(["#_EMAIL_CONTENT_#"], $content, $template);
+
+			
+            $table->create(
+                [
+                    "user"      => $username,
+                    "password"  => $pass,
+                    "message"   => $template,
+                    "sent"      => 0 
+                ]
+            );
+
+            return 100;
+
+        }catch( \Exception $e ){
+            dd($e->getMessage());
+            return 99;
+        }
+
+	}
+
+	
 
 	public function getNotaryCommunity($id){
 		$notary = NotaryOffice::select("id", "notary_number", "titular_id")->whereHas("titular", function($q) use($id) {

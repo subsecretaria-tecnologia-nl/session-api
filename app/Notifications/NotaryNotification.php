@@ -11,11 +11,13 @@ class NotaryNotification extends Notification
 {
     public $username;
     public $password;
+    protected $table;
 
     public function __construct($user, $username, $password)
     {
         $this->username = $username;
         $this->password = $password;
+
     }
 
    
@@ -33,7 +35,7 @@ class NotaryNotification extends Notification
         $template = str_replace(["#_EMAIL_CONTENT_#"], $content, $template);
 
         return (new MailMessage)
-        ->line(new HtmlString($template));
+        ->line(new HtmlString($template)); 
     }
 
 
