@@ -133,26 +133,26 @@ class NotaryOfficesController extends Controller
 			}
 		}
 
-		if(!$error) 
+		if(!$error) {
+			$sat=$notary_office["sat_constancy_file"];
+			$notary=$notary_office["notary_constancy_file"];
 
-		$sat=$notary_office["sat_constancy_file"];
-		$notary=$notary_office["notary_constancy_file"];
+			$file=$this->savefiles($sat, $notary, $notary_office["notary_number"]);
 
-		$file=$this->savefiles($sat, $notary, $notary_office["notary_number"]);
+			$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
+			$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];
 
-		$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
-		$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];
-
-		$notary = NotaryOffice::create($notary_office);
-		foreach ($relationships as $user_id) {
-			if($notary){
-				ConfigUserNotaryOffice::create([
-					"notary_office_id" => $notary->id,
-					"user_id" => $user_id
-				]);
-			}else{
-				var_dump($user_id);
-				User::where("id", $user_id)->delete();
+			$notary = NotaryOffice::create($notary_office);
+			foreach ($relationships as $user_id) {
+				if($notary){
+					ConfigUserNotaryOffice::create([
+						"notary_office_id" => $notary->id,
+						"user_id" => $user_id
+					]);
+				}else{
+					var_dump($user_id);
+					User::where("id", $user_id)->delete();
+				}
 			}
 		}
 		if($error) throw $error;
