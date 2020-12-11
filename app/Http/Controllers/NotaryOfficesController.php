@@ -133,7 +133,17 @@ class NotaryOfficesController extends Controller
 			}
 		}
 
-		if(!$error) $notary = NotaryOffice::create($notary_office);
+		if(!$error) 
+
+		$sat=$notary_office["sat_constancy_file"];
+		$notary=$notary_office["notary_constancy_file"];
+
+		$file=$this->savefiles($sat, $notary, $notary_office["notary_number"]);
+
+		$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
+		$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];
+
+		$notary = NotaryOffice::create($notary_office);
 		foreach ($relationships as $user_id) {
 			if($notary){
 				ConfigUserNotaryOffice::create([
@@ -146,10 +156,6 @@ class NotaryOfficesController extends Controller
 			}
 		}
 		if($error) throw $error;
-		
-		unset($notary_office["sat_constancy_file"]);
-		unset($notary_office["notary_constancy_file"]);
-
 		$response["notary_office"] = array_merge($notary_office, $response["notary_office"]);
 	
 		return $response;
@@ -308,18 +314,43 @@ class NotaryOfficesController extends Controller
 		];
 	}
 
-	public function getFileNotary($id){		
-		$user = User::where('id', $id)->first();
-		$isNotary = $user->isnotary()->get()->first();
+	public function savefiles($sat, $notary, $number_notary){
+			$pdf_sat = str_replace('data:application/pdf;base64,', '', $sat);
+			$pdf_sat = str_replace(' ', '+', $pdf_sat);
+			$pdf_sat = base64_decode($pdf_sat);
+	  
+			$attach_sat = "sat_constancia_".$number_notary.".pdf";			
+	  
+			$path = storage_path('app/'.$attach_sat);
+			\Storage::disk('local')->put($attach_sat,  $pdf_sat);
+					
+			$pdf_notary = str_replace('data:application/pdf;base64,', '', $notary);
+			$pdf_notary = str_replace(' ', '+', $pdf_notary);
+			$pdf_notary = base64_decode($pdf_notary);
+	  
+			$attach_notary = "notaria_constancia_".$number_notary.".pdf";		
+	  
+			$path = storage_path('app/'.$attach_notary);
+			\Storage::disk('local')->put($attach_notary,  $pdf_notary);
+			return [
+				"sat_constancy_file"=>$attach_sat,
+				"notary_constancy_file"=>$attach_notary
+			];
+	}
 
-		$notary = NotaryOffice::find($isNotary->id);
-		$pdf_sat = $notary->sat_constancy_file;
-		$pdf_notary = $notary->notary_constancy_file;
-
-		return [
-			"notary_file"=>$pdf_notary,
-			"sat_file"=>$pdf_sat
-		];	
+	public function getFileNotary($id, $type){	
+		$notary = NotaryOffice::find($id);
+		if($type=='sat'){
+			$sat=$notary->sat_constancy_file;
+			$path = storage_path('app/'.$sat);
+			return $path;			
+			
+		}else{			
+			$notary=$notary->notary_constancy_file;
+			$path = storage_path('app/'.$notary);
+			return $path;
+			
+		}
 
 	}
 }
