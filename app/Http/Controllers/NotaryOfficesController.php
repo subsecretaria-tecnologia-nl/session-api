@@ -288,9 +288,9 @@ class NotaryOfficesController extends Controller
 			];
 	}
 
-	public function getFileNotary(Request $request){	
-		$notary = NotaryOffice::find($request->id);
-		if($request->type=='sat'){
+	public function getFileNotary($id, $type){	
+		$notary = NotaryOffice::find($id);
+		if($type=='sat'){
 			$sat=$notary->sat_constancy_file;
 			$path = storage_path('app/'.$sat);
 			return $path;			
