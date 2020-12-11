@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Mailmessages;
 use Illuminate\Support\Facades\Mail;
 
+
 class Emailnotaryusers extends Command
 {
     /**
@@ -122,9 +123,14 @@ class Emailnotaryusers extends Command
      */ 
     private function sendMailMessage($to,$data)
     {
-         
         try{
-            
+            Mail::send([], [], function($message) use($to, $data) {
+                $message->from(getenv("MAIL_USERNAME"), 'GENL');
+                $message->to($to);
+                $message->subject('Notaria');
+                $message->setBody($data, 'text/html');
+            });
+    
             
             return 1;   
         }catch( \Exception $e ){
