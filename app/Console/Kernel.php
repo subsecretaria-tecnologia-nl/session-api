@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-			\Laravelista\LumenVendorPublish\VendorPublishCommand::class
+			\Laravelista\LumenVendorPublish\VendorPublishCommand::class,
+            Commands\Emailnotaryusers::class,
     ];
 
     /**
@@ -25,5 +26,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         //
+        /* envia las credenciales pendientes de entregar de usuarios de notarias */
+        $schedule->command('mailing:notaryusers')
+                ->everyFiveMinutes();
     }
 }
