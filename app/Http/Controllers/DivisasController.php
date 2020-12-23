@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\ShowableException;
 use App\Models\Divisa;
 use Illuminate\Http\Request;
+use Cache;
 
 class DivisasController extends Controller
 {
@@ -109,6 +110,19 @@ class DivisasController extends Controller
 		return [
 			"divisas" => $divisas->toArray()
 		];
+    }
+
+    public function getCambioDivisa(Request $request){
+        $parametro =$request->parametro;
+        $token= "b001d846c931ffbc16701040b9f669e28c00e5e36714f4efcbeaee386de4985c";
+        try {
+            $url="https://www.banxico.org.mx/SieAPIRest/service/v1/series/$parametro/datos/oportuno?token=$token";
+            $data = json_decode(file_get_contents($url), true);
+            return $data;
+   
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
 		
