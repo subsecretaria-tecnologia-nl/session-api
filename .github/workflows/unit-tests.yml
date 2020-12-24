@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    with: 
+      php-version: '7.4'
 
     steps:
     - uses: actions/checkout@v2
