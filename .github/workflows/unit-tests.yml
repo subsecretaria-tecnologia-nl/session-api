@@ -35,8 +35,8 @@ jobs:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: composer test
         
-    - name: Coveralls
-      env: 
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        COVERALLS_ENTRY_POINT: "https://diloconflores.com"
+    # - name: Coveralls
+    #   env: 
+    #     COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+    #     COVERALLS_ENTRY_POINT: "https://diloconflores.com"
       # run: composer test-coverage
