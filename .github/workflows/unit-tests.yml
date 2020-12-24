@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Setup PHP with PECL extension
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+    
     - uses: actions/checkout@v2
 
     - name: Install all dependencies
@@ -30,8 +35,8 @@ jobs:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: composer test
         
-    - name: Coveralls
-      env: 
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        COVERALLS_ENTRY_POINT: "https://diloconflores.com"
-      run: composer test-coverage
+    # - name: Coveralls
+    #   env: 
+    #     COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+    #     COVERALLS_ENTRY_POINT: "https://diloconflores.com"
+      # run: composer test-coverage
