@@ -22,6 +22,10 @@ class DivisasController extends Controller
     public function getDivisas(){
         $divisas = array(
         array(
+            "parametro"=>"PESOS",
+            "descripcion"=>"Pesos."
+        ),
+        array(
             "parametro"=>"SF43718",
             "descripcion"=>"Pesos por Dólar. FIX."
         ),
@@ -115,8 +119,12 @@ class DivisasController extends Controller
     public function getCambioDivisa(Request $request){
         $parametro =$request->parametro;
         $monto =$request->monto;
+       
         $token= "b001d846c931ffbc16701040b9f669e28c00e5e36714f4efcbeaee386de4985c";
         try {
+            if($parametro=="PESOS"){
+                return $monto;
+            }
             $url="https://www.banxico.org.mx/SieAPIRest/service/v1/series/$parametro/datos/oportuno?token=$token";
             $data = json_decode(file_get_contents($url), true);
 
