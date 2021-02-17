@@ -103,8 +103,9 @@ class UsersController extends Controller
 		}
 
 		if (count((array)$user) > 0) {
-			$role = CatalogUserRoles::nombrerol($user->role_id)->first();
+			$role = CatalogUserRoles::where([ "id" => $user->role_id ])->first();
 			$user->role_name = $role->name;
+			$user->role = $role;
 			return [ "user" => $user ];
 		} else {
 			throw new ShowableException(401, "Unauthorized");
