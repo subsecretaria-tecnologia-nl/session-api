@@ -182,7 +182,7 @@ class NotaryOfficesController extends Controller
 	}
 
 	public function getUsers($id){
-		$notary = NotaryOffice::where("id", $id)->with(["users"])->first();
+		$notary = NotaryOffice::where("id", $id)->with(["users.roles"])->first();
 		if(!$notary)
 			throw new ShowableException(404, "Notary Office ID ($id) does not found.");
 		return [
