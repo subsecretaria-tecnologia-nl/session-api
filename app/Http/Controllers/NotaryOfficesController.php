@@ -195,8 +195,23 @@ class NotaryOfficesController extends Controller
 			throw new ShowableException(422, "Sorry, titular could not be updated");	
 		}
 
-		$notary = NotaryOffice::find($id);
-		
+		if(array_key_exists("sat_constancy_file",$notary_office)){
+			$sat = $notary_office["sat_constancy_file"];
+			$file=$this->savefiles($sat, $notary="", $notary_office["notary_number"]);
+			$deleteFiles =$this->deleteFile($id, "sat_constancy_file");
+			$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
+		}
+
+		if(array_key_exists("notary_constancy_file", $notary_office)){
+			$notary =$notary_office["notary_constancy_file"];
+			$file=$this->savefiles($sat="" ,$notary, $notary_office["notary_number"]);
+			$deleteFiles =$this->deleteFile($id, "notary_constancy_file");
+			$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];
+		} 
+	
+			
+
+		$notary = NotaryOffice::find($id);		
 		$notary->fill($notary_office);		
 		$original =$notary->getOriginal();
 	
@@ -314,28 +329,36 @@ class NotaryOfficesController extends Controller
 		];
 	}
 
-	public function savefiles($sat, $notary, $number_notary){
-			$pdf_sat = str_replace('data:application/pdf;base64,', '', $sat);
-			$pdf_sat = str_replace(' ', '+', $pdf_sat);
-			$pdf_sat = base64_decode($pdf_sat);
-	  
-			$attach_sat = "sat_constancia_".$number_notary.".pdf";			
-	  
-			$path = storage_path('app/'.$attach_sat);
-			\Storage::disk('local')->put($attach_sat,  $pdf_sat);
-					
-			$pdf_notary = str_replace('data:application/pdf;base64,', '', $notary);
-			$pdf_notary = str_replace(' ', '+', $pdf_notary);
-			$pdf_notary = base64_decode($pdf_notary);
-	  
-			$attach_notary = "notaria_constancia_".$number_notary.".pdf";		
-	  
-			$path = storage_path('app/'.$attach_notary);
-			\Storage::disk('local')->put($attach_notary,  $pdf_notary);
-			return [
-				"sat_constancy_file"=>$attach_sat,
-				"notary_constancy_file"=>$attach_notary
-			];
+	public function savefiles($sat="", $notary="", $number_notary){
+
+			if($sat){
+				$pdf_sat = str_replace('data:application/pdf;base64,', '', $sat);
+				$pdf_sat = str_replace(' ', '+', $pdf_sat);
+				$pdf_sat = base64_decode($pdf_sat);
+		  
+				$attach_sat = "sat_constancia_".$number_notary.".pdf";			
+		  
+				$path = storage_path('app/'.$attach_sat);
+				\Storage::disk('local')->put($attach_sat,  $pdf_sat);
+
+				$data["sat_constancy_file"]=$attach_sat;
+
+			}
+			
+			if($notary){						
+				$pdf_notary = str_replace('data:application/pdf;base64,', '', $notary);
+				$pdf_notary = str_replace(' ', '+', $pdf_notary);
+				$pdf_notary = base64_decode($pdf_notary);
+		
+				$attach_notary = "notaria_constancia_".$number_notary.".pdf";		
+		
+				$path = storage_path('app/'.$attach_notary);
+				\Storage::disk('local')->put($attach_notary,  $pdf_notary);
+
+				$data["notary_constancy_file"]=$attach_notary;
+			}
+			
+			return $data;
 	}
 
 	public function getFileNotary($id, $type){	
@@ -353,4 +376,25 @@ class NotaryOfficesController extends Controller
 		}
 
 	}
+
+	public function deleteFile($id, $type){
+		try {
+			$notary = NotaryOffice::where("id", $id)->first();
+			$pathtoFile = storage_path('app/'.$notary->$type);
+			unlink($pathtoFile);
+			return [
+				'success' => true,
+				'status'=> 200
+			];
+		 
+		} catch (\Exception $e) {
+			return [
+				'success' => false,
+				'status'=> 409
+			];
+		
+		}	
+     
+    }
+
 }
