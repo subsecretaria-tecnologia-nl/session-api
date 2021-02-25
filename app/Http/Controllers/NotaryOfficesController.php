@@ -321,9 +321,11 @@ class NotaryOfficesController extends Controller
 	
 
 	public function getNotaryCommunity($id){
-		$notary = NotaryOffice::select("id", "notary_number", "titular_id")->whereHas("titular", function($q) use($id) {
+		$notary = NotaryOffice::select("id", "notary_number", "titular_id", "federal_entity_id")
+		->whereHas("titular", function($q) use($id) {
 			$q->where('config_id', '=', $id); 
-		})->get()->toArray();
+		})->with(["estado:clave,nombre"])
+		->get()->toArray();
 		return [
 			"notary_offices" => $notary
 		];

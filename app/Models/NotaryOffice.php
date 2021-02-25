@@ -33,4 +33,8 @@ class NotaryOffice extends Model
 	public function users () {
 		return $this->belongsToMany("App\Models\User", "App\Models\ConfigUserNotaryOffice", "notary_office_id");
 	}
+
+	public function estado() {
+		return $this->hasOne("App\Models\Entidad", "clave", "federal_entity_id");
+	}
 }
