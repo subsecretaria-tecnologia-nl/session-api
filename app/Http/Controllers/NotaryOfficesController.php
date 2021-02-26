@@ -196,16 +196,16 @@ class NotaryOfficesController extends Controller
 		}
 
 		if(array_key_exists("sat_constancy_file",$notary_office)){
+			$deleteFiles =$this->deleteFile($id, "sat_constancy_file");
 			$sat = $notary_office["sat_constancy_file"];
 			$file=$this->savefiles($sat, $notary="", $notary_office["notary_number"]);
-			$deleteFiles =$this->deleteFile($id, "sat_constancy_file");
 			$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
 		}
 
 		if(array_key_exists("notary_constancy_file", $notary_office)){
+			$deleteFiles =$this->deleteFile($id, "notary_constancy_file");
 			$notary =$notary_office["notary_constancy_file"];
 			$file=$this->savefiles($sat="" ,$notary, $notary_office["notary_number"]);
-			$deleteFiles =$this->deleteFile($id, "notary_constancy_file");
 			$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];
 		} 
 	
@@ -398,5 +398,6 @@ class NotaryOfficesController extends Controller
 		}	
      
     }
+
 
 }
