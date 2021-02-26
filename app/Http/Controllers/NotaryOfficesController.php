@@ -213,22 +213,8 @@ class NotaryOfficesController extends Controller
 
 		$notary = NotaryOffice::find($id);		
 		$notary->fill($notary_office);		
-		$original =$notary->getOriginal();
-	
-		if ($notary->save()) {		
-			$substitute = $notary->getChanges("substitute_id");
-			if(!empty($substitute)){
-				$create =ConfigUserNotaryOffice::create([
-					"notary_office_id" => $id,
-					"user_id" => $notary->substitute_id
-				]);
-				if($create->save()){
-					$delete =ConfigUserNotaryOffice::where("user_id", $original["substitute_id"])
-					->where("notary_office_id", $id)->delete();
-				}
-				
-						
-			}
+		
+		if ($notary->save()) {			
 			return [
 				'success' => true,
 				'status'=> 200
@@ -332,6 +318,7 @@ class NotaryOfficesController extends Controller
 	}
 
 	public function savefiles($sat="", $notary="", $number_notary){
+		// dd($sat, $notary);
 
 			if($sat){
 				$pdf_sat = str_replace('data:application/pdf;base64,', '', $sat);
@@ -398,6 +385,20 @@ class NotaryOfficesController extends Controller
 		}	
      
     }
+
+	public function searchUser($username){
+		$user = User::where('username', $username)->first();
+		
+		if ($user == true) {
+			throw new ShowableException(422, "User already exists with username ($username).");
+		}
+			return [
+				"status"=>200
+			];
+		
+
+	
+	}
 
 
 }
