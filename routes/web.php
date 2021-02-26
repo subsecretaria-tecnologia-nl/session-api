@@ -49,6 +49,8 @@ $router->group(["middleware" => "json.schema.validation", "prefix" => (getenv("A
 		$router->get("/notaryCommunity/{id}", "NotaryOfficesController@getNotaryCommunity");
 		$router->put('/notify/{id}/{pass}','NotaryOfficesController@notify');
 		$router->get('/file/{id}/{type}','NotaryOfficesController@getFileNotary');
+		$router->get('/user/{username}','NotaryOfficesController@searchUser');
+
 
 	});
 	$router->group(["prefix" => "divisas"], function() use ($router){
