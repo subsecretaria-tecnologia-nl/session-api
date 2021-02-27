@@ -318,8 +318,7 @@ class NotaryOfficesController extends Controller
 	}
 
 	public function savefiles($sat="", $notary="", $number_notary){
-		// dd($sat, $notary);
-
+		
 			if($sat){
 				$pdf_sat = str_replace('data:application/pdf;base64,', '', $sat);
 				$pdf_sat = str_replace(' ', '+', $pdf_sat);
@@ -386,15 +385,32 @@ class NotaryOfficesController extends Controller
      
     }
 
-	public function searchUser($username){
-		$user = User::where('username', $username)->first();
-		
-		if ($user == true) {
-			throw new ShowableException(422, "User already exists with username ($username).");
+	public function searchUser(){
+		$users=request()->all();
+
+		if(array_key_exists("username", $users)){
+			
+			$user = User::where('username', $users["username"])->first();
+
+			
+			if ($user == true) {
+				throw new ShowableException(422, "El nombre de usuario ya está en uso.");
+			}
+			
 		}
-			return [
-				"status"=>200
-			];
+
+		if(array_key_exists("email", $users)){
+
+			$correo = User::where('email', $users["email"])->first();
+
+			if ($correo == true) {
+				throw new ShowableException(422, "El correo electrónico ya está en uso.");
+			}
+		}
+	
+		return [
+			"status"=>200
+		];
 		
 
 	
