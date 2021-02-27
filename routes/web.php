@@ -41,6 +41,7 @@ $router->group(["middleware" => "json.schema.validation", "prefix" => (getenv("A
 		$router->post("/", "NotaryOfficesController@signup");
 		$router->get("/", "NotaryOfficesController@getMany");
 		$router->get("/roles", "NotaryOfficesController@getRoles");
+		$router->get('/user','NotaryOfficesController@searchUser');
 		$router->get("/{id}", "NotaryOfficesController@getSingle");
 		$router->get("/{id}/users", "NotaryOfficesController@getUsers");
 		$router->put("/{id}", "NotaryOfficesController@updateNotary");
@@ -49,7 +50,6 @@ $router->group(["middleware" => "json.schema.validation", "prefix" => (getenv("A
 		$router->get("/notaryCommunity/{id}", "NotaryOfficesController@getNotaryCommunity");
 		$router->put('/notify/{id}/{pass}','NotaryOfficesController@notify');
 		$router->get('/file/{id}/{type}','NotaryOfficesController@getFileNotary');
-		$router->get('/user','NotaryOfficesController@searchUser');
 
 
 	});
