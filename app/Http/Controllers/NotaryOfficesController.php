@@ -426,7 +426,7 @@ class NotaryOfficesController extends Controller
 			throw new ShowableException(401, "Necesitas agregar los documentos a notaria.");
 		}
 
-		/**Si el usuario es desactivado y esta asignado a la tabla de notaria lo quita */
+		/**Si el usuario es desactivado, es suplente y esta asignado a la tabla de notaria lo quita */
 		if($request["status"]==0 && $user_id==$notary->substitute_id){
 			$notaryOffice = NotaryOffice::where("id", $id)->update(["substitute_id"=> 0]);
 			$user->update(["status"=>0]);
@@ -448,8 +448,10 @@ class NotaryOfficesController extends Controller
 			$user->update(["status"=>1]);
 			$mensaje="Suplente activado.";
 		}
-		
-	
+		$user->update(["status"=>$request["status"]]);
+		$data = $request["status"]==1 ? "activado" :  "desactivado";
+		$mensaje ="Usuario ".$data; 
+
 		if(!$relation){
 			throw new ShowableException(401, "Sorry, user does not correspond to notary.");
 		}
