@@ -66,7 +66,7 @@ class NotaryOfficesController extends Controller
 						"notary_constancy_file"=>$file["notary_constancy_file"]
 					]);
 					$updateUser = User::where("id", $id_titular_anterior)
-					->update(["status", 0]);
+					->update(["status"=> 0]);
 					// throw new ShowableException(422, "Only can exits one titular.");
 
 				}
@@ -80,7 +80,7 @@ class NotaryOfficesController extends Controller
 					$id_suplente_anterior = $notaryOffice->substitute_id;
 					$notaryOffice->update(["substitute_id"=>$user_id]);
 					$updateUser = User::where("id", $id_suplente_anterior)
-					->update(["status", 0]);
+					->update(["status" => 0]);
 					// throw new ShowableException(422, "Only can exits one substitute.");	
 				}
 			
@@ -254,7 +254,7 @@ class NotaryOfficesController extends Controller
 
 					$updateUser = User::where("id", $id_titular_anterior)
 					->update(["status", 0]);
-					
+
 					$file=$this->savefiles($sat_constancy_file, $notary_constancy_file, $id);
 			
 		
