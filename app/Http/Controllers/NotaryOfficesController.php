@@ -226,19 +226,46 @@ class NotaryOfficesController extends Controller
 
 	public function updateNotaryUsers($id, $user_id){
 		$error = null;
+		$flag = null;
 		$users_notary = request()->all();
 		$relation = ConfigUserNotaryOffice::where('user_id', $user_id)->where('notary_office_id', $id)->first();
 	
 		if(!$relation){
 			throw new ShowableException(401, "Sorry, user does not correspond to notary.");
 		}
+
+		if($users_notary["role_id"]==2){
+			extract($users_notary);
+			unset($users_notary["sat_constancy_file"], $users_notary["notary_constancy_file"]);
+			$flag =1;
+		}
+		
 		$request = new Request($users_notary);
+	
 		try{
 			$userCtrl = new UsersController();
 			$u = $userCtrl->editSubUser($request);
 			if($u){
 				$response["notary_users"] =$u;
+				if($flag==1){
+					$notaryOffice =NotaryOffice::where("id", $id)->first();
+
+					$id_titular_anterior = $notaryOffice->titular_id;
+
+					$updateUser = User::where("id", $id_titular_anterior)
+					->update(["status", 0]);
+					
+					$file=$this->savefiles($sat_constancy_file, $notary_constancy_file, $id);
+			
+		
+					$notaryOffice->update([
+						"titular_id"=>$user_id,
+						"sat_constancy_file"=>$file["sat_constancy_file"],
+						"notary_constancy_file"=>$file["notary_constancy_file"]
+					]);
+				}
 			}
+			
 		
 		} catch (\Exception $e) {
 			$error = $e;
