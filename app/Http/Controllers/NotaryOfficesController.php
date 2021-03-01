@@ -28,22 +28,6 @@ class NotaryOfficesController extends Controller
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
 
 		$role = CatalogUserRoles::where("id", $users->role_id)->first();
-	
-
-		if($notaryOffice->titular_id !=null){
-			if($role->name=="notary_titular"){
-				throw new ShowableException(422, "Only can exits one titular.");
-
-			}
-
-		}
-
-		if($notaryOffice->substitute_id !=null){	
-			if($role->name=="notary_substitute"){
-				throw new ShowableException(422, "Only can exits one substitute.");	
-			}
-		
-		}
 
 		
 		try{			
@@ -65,11 +49,46 @@ class NotaryOfficesController extends Controller
 		}
 		
 		if(!$error) 
-		foreach ($relationships as $user_id) {
-				ConfigUserNotaryOffice::create([
-					"notary_office_id" => $id,
-					"user_id" => $user_id
-				]);
+		foreach ($relationships as $user_id) {			
+			if(!empty($notaryOffice->titular_id)){
+				/**Si se agrega otro titular a la notaria pero ya existe uno, se quita el anterior y se guardan los nuevos archivos */
+				if($role->name=="notary_titular"){
+					$id_titular_anterior = $notaryOffice->titular_id;
+
+					$sat=$users->sat_constancy_file;
+					$notary=$users->notary_constancy_file;
+
+					$file=$this->savefiles($sat, $notary, $notaryOffice->notary_number);
+
+					$notaryOffice->update([
+						"titular_id"=>$user_id,
+						"sat_constancy_file"=>$file["sat_constancy_file"],
+						"notary_constancy_file"=>$file["notary_constancy_file"]
+					]);
+					$updateUser = User::where("id", $id_titular_anterior)
+					->update(["status", 0]);
+					// throw new ShowableException(422, "Only can exits one titular.");
+
+				}
+
+			}
+
+			/**Si se agrega otro suplente a la notaria pero ya existe uno, se quita el anterior y se guarda el nuevo */
+			
+			if(!empty($notaryOffice->substitute_id)){	
+				if($role->name=="notary_substitute"){
+					$id_suplente_anterior = $notaryOffice->substitute_id;
+					$notaryOffice->update(["substitute_id"=>$user_id]);
+					$updateUser = User::where("id", $id_suplente_anterior)
+					->update(["status", 0]);
+					// throw new ShowableException(422, "Only can exits one substitute.");	
+				}
+			
+			}
+			ConfigUserNotaryOffice::create([
+				"notary_office_id" => $id,
+				"user_id" => $user_id
+			]);
 		
 		}
 
@@ -191,26 +210,6 @@ class NotaryOfficesController extends Controller
 	}
 	public function updateNotary($id){
 		$notary_office= request()->all();
-		if(array_key_exists ("titular_id",  $notary_office) ){
-			throw new ShowableException(422, "Sorry, titular could not be updated");	
-		}
-
-		if(array_key_exists("sat_constancy_file",$notary_office)){
-			$deleteFiles =$this->deleteFile($id, "sat_constancy_file");
-			$sat = $notary_office["sat_constancy_file"];
-			$file=$this->savefiles($sat, $notary="", $notary_office["notary_number"]);
-			$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
-		}
-
-		if(array_key_exists("notary_constancy_file", $notary_office)){
-			$deleteFiles =$this->deleteFile($id, "notary_constancy_file");
-			$notary =$notary_office["notary_constancy_file"];
-			$file=$this->savefiles($sat="" ,$notary, $notary_office["notary_number"]);
-			$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];
-		} 
-	
-			
-
 		$notary = NotaryOffice::find($id);		
 		$notary->fill($notary_office);		
 		
@@ -227,19 +226,46 @@ class NotaryOfficesController extends Controller
 
 	public function updateNotaryUsers($id, $user_id){
 		$error = null;
+		$flag = null;
 		$users_notary = request()->all();
 		$relation = ConfigUserNotaryOffice::where('user_id', $user_id)->where('notary_office_id', $id)->first();
 	
 		if(!$relation){
 			throw new ShowableException(401, "Sorry, user does not correspond to notary.");
 		}
+
+		if($users_notary["role_id"]==2){
+			extract($users_notary);
+			unset($users_notary["sat_constancy_file"], $users_notary["notary_constancy_file"]);
+			$flag =1;
+		}
+		
 		$request = new Request($users_notary);
+	
 		try{
 			$userCtrl = new UsersController();
 			$u = $userCtrl->editSubUser($request);
 			if($u){
 				$response["notary_users"] =$u;
+				if($flag==1){
+					$notaryOffice =NotaryOffice::where("id", $id)->first();
+
+					$id_titular_anterior = $notaryOffice->titular_id;
+
+					$updateUser = User::where("id", $id_titular_anterior)
+					->update(["status", 0]);
+					
+					$file=$this->savefiles($sat_constancy_file, $notary_constancy_file, $id);
+			
+		
+					$notaryOffice->update([
+						"titular_id"=>$user_id,
+						"sat_constancy_file"=>$file["sat_constancy_file"],
+						"notary_constancy_file"=>$file["notary_constancy_file"]
+					]);
+				}
 			}
+			
 		
 		} catch (\Exception $e) {
 			$error = $e;
@@ -310,7 +336,8 @@ class NotaryOfficesController extends Controller
 		$notary = NotaryOffice::select("id", "notary_number", "titular_id", "federal_entity_id")
 		->whereHas("titular", function($q) use($id) {
 			$q->where('config_id', '=', $id); 
-		})->with(["estado:clave,nombre"])
+		})
+		->with(["estado:clave,nombre"])
 		->get()->toArray();
 		return [
 			"notary_offices" => $notary
@@ -411,10 +438,58 @@ class NotaryOfficesController extends Controller
 		return [
 			"status"=>200
 		];
-		
 
-	
 	}
 
+	public function statusUser($id, $user_id){
+		$error = null;
+		$mensaje =null;
+		$request = request()->all();
+		$relation = ConfigUserNotaryOffice::where('user_id', $user_id)->where('notary_office_id', $id)->first();
+		$notary =NotaryOffice::where("id", $id)->first();
+		$user =User::find($user_id);
+
+		if($user->role_id ==2){		
+			throw new ShowableException(401, "Necesitas agregar los documentos a notaria.");
+		}
+
+		/**Si el usuario es desactivado, es suplente y esta asignado a la tabla de notaria lo quita */
+		if($request["status"]==0 && $user_id==$notary->substitute_id){
+			$notaryOffice = NotaryOffice::where("id", $id)->update(["substitute_id"=> 0]);
+			$user->update(["status"=>0]);
+			$mensaje = "Suplente desactivado.";
+		}
+
+		/**Si el usuario es activado y el role es suplente lo agrega a notaria */
+		if($request["status"]==1 && $user->role_id==5){
+			/**Si el usuario es activado pero existe un suplente en la notaria, quita ese suplente y se agrega el nuevo */
+			if(!empty($notary->substitute_id)){
+				$userSuplenteAnt=User::find($notary->substitute_id);
+				$userSuplenteAnt->update(["status"=>0]);
+				$notaryOffice = NotaryOffice::where("id", $id)->update(["substitute_id"=> $user_id]);
+				$user->update(["status"=>1]);
+				$mensaje="Suplente activado.";
+
+			}
+			$notaryOffice = NotaryOffice::where("id", $id)->update(["substitute_id"=> $user_id]);
+			$user->update(["status"=>1]);
+			$mensaje="Suplente activado.";
+		}
+		$user->update(["status"=>$request["status"]]);
+		$data = $request["status"]==1 ? "activado" :  "desactivado";
+		$mensaje ="Usuario ".$data; 
+
+		if(!$relation){
+			throw new ShowableException(401, "Sorry, user does not correspond to notary.");
+		}
+	
+
+		return [
+			'success' => true,
+			'status'=> 200,
+			'mensaje'=> $mensaje
+		];		
+
+	}
 
 }
