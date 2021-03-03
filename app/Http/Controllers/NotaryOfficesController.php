@@ -261,7 +261,7 @@ class NotaryOfficesController extends Controller
 				}
 				$response["notary_users"] =$u;	
 
-				die();
+				
 
 				if($users_notary["role_id"]==2){				
 
