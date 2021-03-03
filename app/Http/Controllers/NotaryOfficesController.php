@@ -231,6 +231,7 @@ class NotaryOfficesController extends Controller
 		$users_notary = request()->all();
 		$relation = ConfigUserNotaryOffice::where('user_id', $user_id)->where('notary_office_id', $id)->first();
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
+		$usern = User::where("id", $user_id)->first();
 
 	
 		if(!$relation){
@@ -239,36 +240,50 @@ class NotaryOfficesController extends Controller
 
 		if($users_notary["role_id"]==2){
 			extract($users_notary);
-			unset($users_notary["sat_constancy_file"], $users_notary["notary_constancy_file"]);
-			$flag =1;
-		}
+			unset($users_notary["sat_constancy_file"], $users_notary["notary_constancy_file"]);	
 		
+		}
 		$request = new Request($users_notary);
 	
 		try{
 			$userCtrl = new UsersController();
 			$u = $userCtrl->editSubUser($request);
-			if($u){
-				$response["notary_users"] =$u;
-				if($flag==1){
-					$id_titular_anterior = $notaryOffice->titular_id;
-					if(!empty($notaryOffice->substitute_id) && $notaryOffice->substitute_id==$user_id){
-						$notaryOffice->update([
-							"substitute_id"=>0
-						]);
-					}
-					
-					$updateUser = User::where("id", $id_titular_anterior)
-					->update(["status"=> 0]); 
+			if($u){		
+				
+				$response["notary_users"] =$u;	
 
-					$file=$this->savefiles($sat_constancy_file, $notary_constancy_file, $id);			
-		
-					$notaryOffice->update([
-						"titular_id"=>$user_id,
-						"sat_constancy_file"=>$file["sat_constancy_file"],
-						"notary_constancy_file"=>$file["notary_constancy_file"]
-					]);
-				}
+				if($users_notary["role_id"]==2){				
+
+					if($usern->status==0){	
+						$file=$this->savefiles($sat_constancy_file, $notary_constancy_file, $notaryOffice->notary_number);	
+						$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
+						$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];
+						$notary_office["titular_id"]=$user_id;	
+
+						$id_titular_anterior = $notaryOffice->titular_id;
+						if(!empty($notaryOffice->substitute_id) && $notaryOffice->substitute_id==$user_id){
+							$notaryOffice->update(["substitute_id"=>0]);
+						}
+						$notaryOffice->update($notary_office);	
+						
+						$updateUser = User::where("id", $id_titular_anterior)->update(["status"=> 0]); 
+					
+					}else{
+						if(isset($sat_constancy_file) || isset($notary_constancy_file)){
+							$sat_constancy_file = isset($sat_constancy_file)==true ? $sat_constancy_file : "";
+							$notary_constancy_file = isset($notary_constancy_file)==true ? $notary_constancy_file : "";
+							$file=$this->savefiles($sat_constancy_file, $notary_constancy_file, $notaryOffice->notary_number);
+							$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
+							$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];	
+							$notary_office["titular_id"]=$user_id;
+							$notaryOffice->update($notary_office);
+						}	
+						
+					}
+				}		
+
+				
+
 				if($users_notary["role_id"]==5){
 					if(!empty($notaryOffice->substitute_id)){	
 						$id_suplente_anterior = $notaryOffice->substitute_id;
@@ -279,8 +294,9 @@ class NotaryOfficesController extends Controller
 
 					
 				}
+				$usern->update(["status" => 1]);
+
 			}
-			$usern = User::where("id", $user_id)->update(["status" => 1]);
 		
 		} catch (\Exception $e) {
 			$error = $e;
@@ -359,8 +375,7 @@ class NotaryOfficesController extends Controller
 		];
 	}
 
-	public function savefiles($sat="", $notary="", $number_notary){
-		
+	public function savefiles($sat="", $notary="", $number_notary){		
 			if($sat){
 				$pdf_sat = str_replace('data:application/pdf;base64,', '', $sat);
 				$pdf_sat = str_replace(' ', '+', $pdf_sat);
