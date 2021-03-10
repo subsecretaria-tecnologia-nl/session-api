@@ -32,8 +32,7 @@ class Emailnotaryusers extends Command
 
     protected $messages;
     protected $maxTries = 5;
-    public function __construct()
-    {
+    public function __construct(){
         parent::__construct();
         $this->messages = new Mailmessages();
     }
@@ -43,22 +42,16 @@ class Emailnotaryusers extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {
+    public function handle(){
         // obtener las listas pendientes de correo
         $pending = $this->pendientesEnvio();
-
-        if($pending != 0)
-        {
+        if($pending != 0){
             $proceso = $this->procesarEnvio($pending);
-
             // final del proceso
             $fin = $this->updateAnswers($proceso, $pending);
-
         }else{
             dd("No hay envios pendientes");
         }
-    
     }
 
 
@@ -71,19 +64,15 @@ class Emailnotaryusers extends Command
      * @return object
      */    
 
-    private function pendientesEnvio()
-    {
+    private function pendientesEnvio(){
         $p = $this->messages->whereIn("sent", [0, 99])->where(function($q) {
             $q->where('tries', null)
             ->orWhere('tries', '<', $this->maxTries);
         })->get();
         
-        if($p->count() > 0)
-        {
+        if($p->count() > 0){
             $data = array();
-            
-            foreach($p as $info)
-            {
+            foreach($p as $info){
                 $data[]= array(
                     "id"        => $info->id,
                     "to"        => $info->user,
@@ -92,9 +81,7 @@ class Emailnotaryusers extends Command
                     "tries"     => $info->tries
                 );
             }
-
             return $data;
-
         }else{
             return 0;
         }
@@ -108,14 +95,10 @@ class Emailnotaryusers extends Command
      *
      * @return object
      */ 
-    private function procesarEnvio($info)
-    {
-        foreach($info as $i)
-        {
+    private function procesarEnvio($info){
+        foreach($info as $i){
             $answer[$i["id"]] = $this->sendMailMessage($i["to"],$i["message"]);
-
         }
-
         return $answer;
     }
 
@@ -127,23 +110,26 @@ class Emailnotaryusers extends Command
      *
      * @return 1 si se mando correctamente o 99 si no se pudo mandar
      */ 
-    private function sendMailMessage($to,$data)
-    {
+    private function sendMailMessage($to,$data){
+        $data = str_replace('<body>', '', $data);
+        $dataText = preg_replace("/\<head\>(.*)\<\/head\>/s", '', $data);
+        $dataText = preg_replace("/(header|content|footer)/", 'div', $dataText);
+        $text = \Soundasleep\Html2Text::convert($dataText);
         try{
             Mail::send([], [], function($message) use($to, $data) {
                 $message->to($to);
                 $message->subject('Notaria');
                 $message->setBody($data, 'text/html');
+                $message->addPart($text, 'text/plain');
             });
-    
+
+
             echo "Send: {$to}\n";
             return [1];
         }catch( \Exception $e ){
             echo "Error: {$to}\n";
             return [99, $e->getMessage()];
         }
-        
-    
     }
 
     /**
@@ -154,8 +140,7 @@ class Emailnotaryusers extends Command
      *
      * @return 1 si se mando correctamente o 99 si no se pudo mandar
      */ 
-    private function updateAnswers($array, $actual)
-    {
+    private function updateAnswers($array, $actual){
         foreach($array as $i => $j){
             $data = [ "sent" => $j[0] ];
             if(isset($j[1])){
