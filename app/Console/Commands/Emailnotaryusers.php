@@ -118,7 +118,7 @@ class Emailnotaryusers extends Command
         $title = $matches && $matches[1] ? $matches[1] : 'Notaria';
         $text = \Soundasleep\Html2Text::convert($dataText);
         try{
-            Mail::send([], [], function($message) use($to, $data, $text) {
+            Mail::send([], [], function($message) use($to, $data, $text, $title) {
                 $message->to($to);
                 $message->subject($title);
                 $message->setBody($data, 'text/html');
