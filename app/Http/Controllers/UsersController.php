@@ -81,7 +81,9 @@ class UsersController extends Controller
 		$user = User::find($request->id);		
 		$user->function = "Editar sub usuario";
 
-		$input = $request->all();	
+		
+		$input = $request->all();
+		$input->password = Hash::make($input->password);	
 		$updated = $user->fill($input);
 
 
