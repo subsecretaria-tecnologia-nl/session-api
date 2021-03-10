@@ -116,7 +116,7 @@ class Emailnotaryusers extends Command
         $dataText = preg_replace("/(header|content|footer)/", 'div', $dataText);
         $text = \Soundasleep\Html2Text::convert($dataText);
         try{
-            Mail::send([], [], function($message) use($to, $data) {
+            Mail::send([], [], function($message) use($to, $data, $text) {
                 $message->to($to);
                 $message->subject('Notaria');
                 $message->setBody($data, 'text/html');
