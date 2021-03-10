@@ -114,11 +114,13 @@ class Emailnotaryusers extends Command
         $data = str_replace('<body>', '', $data);
         $dataText = preg_replace("/\<head\>(.*)\<\/head\>/s", '', $data);
         $dataText = preg_replace("/(header|content|footer)/", 'div', $dataText);
+        preg_match("/\<title\>(.*)\<\/title\>/", $data, $matches);
+        $title = $matches && $matches[1] ? $matches[1] : 'Notaria';
         $text = \Soundasleep\Html2Text::convert($dataText);
         try{
             Mail::send([], [], function($message) use($to, $data, $text) {
                 $message->to($to);
-                $message->subject('Notaria');
+                $message->subject($title);
                 $message->setBody($data, 'text/html');
                 $message->addPart($text, 'text/plain');
             });
