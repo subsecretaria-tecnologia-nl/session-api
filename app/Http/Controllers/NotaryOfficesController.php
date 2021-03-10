@@ -110,6 +110,20 @@ class NotaryOfficesController extends Controller
 		$notary = null;	
 		extract($notary_office, EXTR_PREFIX_SAME, "notary");
 		unset($notary_office["titular"], $notary_office["substitute"], $notary_office["users"]);
+
+		$existNotary=NotaryOffice::where("notary_number", $notary_office["notary_number"])
+		->where("federal_entity_id", $notary_office["federal_entity_id"])->first();
+
+
+		if($existNotary){
+			return [
+				"code"=> 422,
+				"message"=> "El número de la Notaria ({$notary_office["notary_number"]}) ya existe.",
+			];
+			// throw new ShowableException(422, "The Notary Number ({$notary_office["notary_number"]}) already exists.");
+		}
+	
+
 	
 		$roles = CatalogUserRoles::where("name", "LIKE", "notary_%")->get();
 		foreach($roles as $rol){
@@ -122,9 +136,7 @@ class NotaryOfficesController extends Controller
 				if(!empty(${$matches[1]})) ${$matches[1]}["role_id"] = $rol->id;
 			}
 		}
-
-		if(NotaryOffice::where("notary_number", $notary_office["notary_number"])->count() > 0)
-			throw new ShowableException(422, "The Notary Number ({$notary_office["notary_number"]}) already exists.");
+	
 	
 		if(!empty($titular)) array_push($users, $titular);
 		if(!empty($substitute)) array_push($users, $substitute);

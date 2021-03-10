@@ -41,7 +41,7 @@ return [
     |
     */
 
-    'port' => env('MAIL_PORT', 587),
+    'port' => env('MAIL_PORT', 25),
 
     /*
     |--------------------------------------------------------------------------
@@ -55,7 +55,7 @@ return [
     */
 
     'from' => [
-			'address' => env('MAIL_FROM_ADDRESS', 'no-reply@example.com'),
+			'address' => env('MAIL_FROM_ADDRESS'),
 			'name' => env('MAIL_FROM_NAME', 'Admin'),
 		],
 
