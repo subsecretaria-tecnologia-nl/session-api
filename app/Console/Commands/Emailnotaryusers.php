@@ -45,7 +45,6 @@ class Emailnotaryusers extends Command
      */
     public function handle()
     {
-        // dd(Configuration::get());
         // obtener las listas pendientes de correo
         $pending = $this->pendientesEnvio();
 
@@ -171,7 +170,5 @@ class Emailnotaryusers extends Command
 
             $affectedRows = $this->messages->where("id", $i)->update($data);
         }
-
-            // var_dump($data);
     }
 }
