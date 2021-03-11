@@ -244,14 +244,14 @@ class NotaryOfficesController extends Controller
 		$relation = ConfigUserNotaryOffice::where('user_id', $user_id)->where('notary_office_id', $id)->first();
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
 		$usern = User::where("id", $user_id)->first();
-		$reenvio=$users_notary["reenvio"];
-	
+		extract($users_notary);
+		unset($users_notary["reenvio"]); 
+
 		if(!$relation){
 			throw new ShowableException(401, "Sorry, user does not correspond to notary.");
 		}
 
 		if($users_notary["role_id"]==2){
-			extract($users_notary);
 			unset($users_notary["sat_constancy_file"], $users_notary["notary_constancy_file"]);	
 		
 		}

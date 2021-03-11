@@ -75,7 +75,7 @@ class UsersController extends Controller
 			'password' => [
 				'string',
 				'min:8',
-				'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/'.$request->id
+				'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/'
 			]
 
 		]);
@@ -88,7 +88,9 @@ class UsersController extends Controller
 
 		
 		$input = $request->all();
-		$input["password"] = Hash::make($input["password"]);	
+
+		if(isset($input["password"])) $input["password"] = Hash::make($input["password"]);
+	
 		
 		$updated = $user->fill($input);
 
