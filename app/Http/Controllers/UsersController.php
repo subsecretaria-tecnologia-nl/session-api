@@ -72,6 +72,11 @@ class UsersController extends Controller
 		$validator = Validator::make($request->all(), [
 			'email' => 'string|email|max:255|unique:users,email,'.$request->id,
 			'username'=>'string|unique:users,username,'.$request->id,
+			'password' => [
+				'string',
+				'min:8',
+				'regex:/^(?=.*\d)(?=.*[\u0021-\u002b\u003c-\u0040])(?=.*[A-Z])(?=.*[a-z])\S{8,}$/'.$request->id
+			]
 
 		]);
 		if($validator->fails()){
@@ -83,7 +88,8 @@ class UsersController extends Controller
 
 		
 		$input = $request->all();
-		$input->password = Hash::make($input->password);	
+		$input["password"] = Hash::make($input["password"]);	
+		
 		$updated = $user->fill($input);
 
 
