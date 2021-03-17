@@ -50,6 +50,7 @@ class Emailnotaryusers extends Command
             // final del proceso
             $fin = $this->updateAnswers($proceso, $pending);
         }else{
+            \Log::stack(['mailing'])->info("No hay envios pendientes");
             dd("No hay envios pendientes");
         }
     }
@@ -127,9 +128,11 @@ class Emailnotaryusers extends Command
 
 
             echo "Send: {$to}\n";
+            \Log::stack(['mailing'])->info("Send: {$to}\n");
             return [1];
         }catch( \Exception $e ){
             echo "Error: {$to}\n";
+            \Log::stack(['mailing'])->error("Error: {$to}\n");
             return [99, $e->getMessage()];
         }
     }
