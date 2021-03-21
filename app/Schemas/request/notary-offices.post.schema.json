@@ -18,8 +18,7 @@
 					"pattern" : "^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\\s\\./0-9]*$"
 				},
 				"fax" : {
-					"type" : "string",
-					"pattern" : "^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\\s\\./0-9]*$"
+					"type" : "string"
 				},
 				"email" : {
 					"type" : "string",
@@ -76,7 +75,7 @@
 					"minLength" : 34
 				}
 			},
-			"required" : [ "notary_number", "phone", "fax", "email", "street", "number", "zip", "titular", "sat_constancy_file", "notary_constancy_file" ]
+			"required" : [ "notary_number", "phone", "email", "street", "number", "zip", "titular", "sat_constancy_file", "notary_constancy_file" ]
 		}
 	},
 	"required" : ["notary_office"],
