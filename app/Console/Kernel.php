@@ -29,6 +29,7 @@ class Kernel extends ConsoleKernel
         /* envia las credenciales pendientes de entregar de usuarios de notarias */
         $schedule
             ->command('mailing:notaryusers')
-            ->everyMinute();
+            ->everyFiveMinutes()
+            ->runInBackground();
     }
 }
