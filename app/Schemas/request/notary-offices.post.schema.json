@@ -55,7 +55,7 @@
 				},
 				"zip" : {
 					"type" : "string",
-					"pattern" : "^([0-8]{4,7})$"
+					"pattern" : "^([0-9]{4,7})$"
 				},
 				"titular" : { "$ref" : "#/definitions/users" },
 				"substitute" : { "$ref" : "#/definitions/users" },
