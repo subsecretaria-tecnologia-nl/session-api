@@ -114,16 +114,13 @@ class NotaryOfficesController extends Controller
 		$existNotary=NotaryOffice::where("notary_number", $notary_office["notary_number"])
 		->where("federal_entity_id", $notary_office["federal_entity_id"])->first();
 
-
 		if($existNotary){
-			return [
-				"code"=> 422,
-				"message"=> "El número de la Notaria ({$notary_office["notary_number"]}) ya existe.",
-			];
-			// throw new ShowableException(422, "The Notary Number ({$notary_office["notary_number"]}) already exists.");
+			// return [
+			// 	"code"=> 422,
+			// 	"message"=> "El número de la Notaria ({$notary_office["notary_number"]}) ya existe.",
+			// ];
+			throw new ShowableException(422, "The Notary Number ({$notary_office["notary_number"]}) already exists.");
 		}
-	
-
 	
 		$roles = CatalogUserRoles::where("name", "LIKE", "notary_%")->get();
 		foreach($roles as $rol){
@@ -136,8 +133,8 @@ class NotaryOfficesController extends Controller
 				if(!empty(${$matches[1]})) ${$matches[1]}["role_id"] = $rol->id;
 			}
 		}
-	
-	
+
+
 		if(!empty($titular)) array_push($users, $titular);
 		if(!empty($substitute)) array_push($users, $substitute);
 		if(!empty($notary_users)) $users = array_merge($users, $notary_users);
@@ -165,29 +162,27 @@ class NotaryOfficesController extends Controller
 			}
 		}
 
-		if(!$error) {
-			$sat=$notary_office["sat_constancy_file"];
-			$notary=$notary_office["notary_constancy_file"];
+		if($error) throw $error;
+		
+		$sat=$notary_office["sat_constancy_file"];
+		$notary=$notary_office["notary_constancy_file"];
 
-			$file=$this->savefiles($sat, $notary, $notary_office["notary_number"]);
+		$file=$this->savefiles($sat, $notary, $notary_office["notary_number"]);
 
-			$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
-			$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];
+		$notary_office["sat_constancy_file"]=$file["sat_constancy_file"];
+		$notary_office["notary_constancy_file"]=$file["notary_constancy_file"];
 
-			$notary = NotaryOffice::create($notary_office);
-			foreach ($relationships as $user_id) {
-				if($notary){
-					ConfigUserNotaryOffice::create([
-						"notary_office_id" => $notary->id,
-						"user_id" => $user_id
-					]);
-				}else{
-					var_dump($user_id);
-					User::where("id", $user_id)->delete();
-				}
+		$notary = NotaryOffice::create($notary_office);
+		foreach ($relationships as $user_id) {
+			if($notary){
+				ConfigUserNotaryOffice::create([
+					"notary_office_id" => $notary->id,
+					"user_id" => $user_id
+				]);
+			}else{
+				User::where("id", $user_id)->delete();
 			}
 		}
-		if($error) throw $error;
 		$response["notary_office"] = array_merge($notary_office, $response["notary_office"]);
 	
 		return $response;
@@ -357,10 +352,16 @@ class NotaryOfficesController extends Controller
 			$user = User::findOrFail($id);
 			$username= $user->email;
 
+			$arrContextOptions=array(
+				"ssl"=>array(
+					"verify_peer"=>false,
+					"verify_peer_name"=>false,
+				),
+			);  
 
 			$content = "<p>Claves de acceso:</p><p>Correo:".$username."</p><p>Contraseña:".$pass."</p>";
 	        
-	        $template = file_get_contents(getenv("PORTAL_HOSTNAME")."/email/template");
+	        $template = file_get_contents(getenv("PORTAL_HOSTNAME")."/email/template", false, stream_context_create($arrContextOptions));
 	        $template = str_replace(["#_EMAIL_PREHEADER_#"], "Usuario Registrado Notaria", $template);
 	        $template = str_replace(["#_EMAIL_HEADER_#"], "Tu cuenta ha sido registrada como usuario de notrario", $template);
 	        $template = str_replace(["#_EMAIL_CONTENT_#"], $content, $template);
@@ -378,7 +379,7 @@ class NotaryOfficesController extends Controller
             return 100;
 
         }catch( \Exception $e ){
-            dd($e->getMessage());
+            \Log::warning("Error getting email template => ".$e->getMessage());
             return 99;
         }
 
