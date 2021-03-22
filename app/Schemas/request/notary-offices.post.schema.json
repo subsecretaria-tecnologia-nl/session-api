@@ -11,7 +11,7 @@
 				"notary_number" : {
 					"type" : "string",
 					"minLength": 1,
-					"maxLength": 4
+					"maxLength": 10
 				},
 				"phone" : {
 					"type" : "string",
