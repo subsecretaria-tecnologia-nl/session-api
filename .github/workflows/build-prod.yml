@@ -34,7 +34,7 @@ jobs:
         host: ${{ secrets.PROD_ENDPOINT }}
         username: ${{ secrets.PROD_USER }}
         password: ${{ secrets.PROD_PASSWORD }}
-        script: cd ${{ secrets.PROD_FOLDER }} && git pull origin ${{ secrets.QA_BRANCH }} && composer install && composer dump-autoload && npm install && npm run prod
+        script: cd ${{ secrets.PROD_FOLDER }} && git pull origin ${{ secrets.QA_BRANCH }} && composer install && composer dump-autoload
 
     - name: kill vpn
       if: always()
