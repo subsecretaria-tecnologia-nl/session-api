@@ -17,7 +17,7 @@ class NotaryOffice extends Model
 		"zip",
 		"titular_id",
 		"substitute_id",
-		"outdoor-number",
+		"indoor-number",
 		"sat_constancy_file",
 		"notary_constancy_file"
 	];
