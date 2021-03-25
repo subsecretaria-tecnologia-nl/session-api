@@ -1,0 +1,41 @@
+name: build-prod
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  connect-vpn-build-prod:
+    name: install ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@master
+
+    - name: Install Open VPN
+      run: sudo apt install openvpn -y && sudo apt install expect
+
+    - name: Connect VPN
+      uses: golfzaptw/action-connect-ovpn@master
+      id: connect_vpn
+      with:
+        PING_URL: '127.0.0.1'
+        FILE_OVPN: '.github/vpn/config.ovpn'
+        SECRET: ${{ secrets.SECRET_USERNAME_PASSWORD }}
+      env:
+          CA_CRT: ${{ secrets.CA_CRT}}
+          USER_CRT: ${{ secrets.USER_CRT }}
+          USER_KEY: ${{ secrets.USER_KEY }}
+          
+    - name: Connect to SSH and build
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PROD_ENDPOINT }}
+        username: ${{ secrets.PROD_USER }}
+        password: ${{ secrets.PROD_PASSWORD }}
+        script: cd ${{ secrets.PROD_FOLDER }} && git pull origin ${{ secrets.QA_BRANCH }} && composer install && composer dump-autoload && npm install && npm run prod
+
+    - name: kill vpn
+      if: always()
+      run: sudo killall openvpn
