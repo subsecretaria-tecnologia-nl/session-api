@@ -204,8 +204,10 @@ class NotaryOfficesController extends Controller
 		];
 	}
 	public function getRoles(){
-		$roles = CatalogUserRoles::all()->toArray();
-		return $roles;
+		$roles = CatalogUserRoles::get();
+		return [
+			"notary_office" => $roles->toArray()
+		];
 	}
 
 	public function getUsers($id){
