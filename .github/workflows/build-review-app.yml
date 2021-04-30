@@ -1,0 +1,100 @@
+name: build-review-app
+on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+    branches:
+      - '*'
+      - '!master'
+
+jobs:
+  deploy-review-app:
+    name: Deploy Review App
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set env
+      run: |
+        BRANCH=$(echo "${{ github.head_ref }}" | sed "s/\//\-/g") &&
+        BRANCH=$(echo "$BRANCH" | sed "s/[0-9]*//g") &&
+        BRANCH=$(echo "$BRANCH" | sed "s/\.//g") &&
+        BRANCH=$(echo "$BRANCH" | sed "s/\-$//g") &&
+        echo "BRANCH_PATH=deployed-$BRANCH" >> $GITHUB_ENV &&
+        echo "BRANCH_NAME=$BRANCH" >> $GITHUB_ENV
+
+    - name: Test new env
+      run: |
+        echo ${{ env.BRANCH_PATH }} &&
+        echo ${{ env.BRANCH_NAME }}
+
+    - name: start deployment
+      uses: bobheadxi/deployments@v0.4.3
+      id: deployment
+      with:
+        step: start
+        token: ${{ secrets.GITHUB_TOKEN }}
+        env: review-app-${{ env.BRANCH_NAME }}
+        ref: ${{ github.head_ref }}
+
+    - name: Checkout repository
+      uses: actions/checkout@master
+
+    - name: Install Open VPN
+      run: sudo apt install openvpn -y && sudo apt install expect
+
+    - name: Connect VPN
+      uses: golfzaptw/action-connect-ovpn@master
+      id: connect_vpn
+      with:
+        PING_URL: '127.0.0.1'
+        FILE_OVPN: '.github/vpn/config.ovpn'
+        SECRET: ${{ secrets.SECRET_USERNAME_PASSWORD }}
+      env:
+        CA_CRT: ${{ secrets.CA_CRT}}
+        USER_CRT: ${{ secrets.USER_CRT }}
+        USER_KEY: ${{ secrets.USER_KEY }}
+          
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.QA_ENDPOINT }}
+        username: ${{ secrets.QA_USER }}
+        password: ${{ secrets.QA_PASSWORD }}
+        script: |
+          branchPath=${{ env.BRANCH_PATH }} &&
+          echo "$branchPath" &&
+          cd ${{ secrets.QA_FOLDER }} &&
+          cd .. &&
+          if [ -d "$branchPath" ]; then rm -Rf $branchPath; fi &&
+          git clone -b ${{ github.head_ref }} --single-branch ${{ secrets.URL_REPO }} $branchPath &&
+          cd $branchPath &&
+          cp ${{ secrets.QA_FOLDER }}/.env .env &&
+
+          search_1="http:\/\/10.153.144.218\/payments-api" &&
+          search_2="APP_PREFIX=\"payments-api" &&
+          
+          replace_1="http:\/\/10.153.144.218\/$branchPath" &&
+          replace_2="APP_PREFIX=\"$branchPath" &&
+          
+          sed -i "s/$search_1/$replace_1/gi" .env &&
+          sed -i "s/$search_2/$replace_2/gi" .env &&
+
+          composer install &&
+          composer dump-autoload &&
+          
+          echo ${{ secrets.QA_PASSWORD }} | sudo -S chown -R nginx storage &&
+          echo ${{ secrets.QA_PASSWORD }} | sudo -S chmod -R 777 storage public
+
+    - name: kill vpn
+      if: always()
+      run: sudo killall openvpn
+
+    - name: update deployment status
+      uses: bobheadxi/deployments@v0.4.3
+      if: always()
+      with:
+        step: finish
+        token: ${{ secrets.GITHUB_TOKEN }}
+        status: ${{ job.status }}
+        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+        env_url: "http://${{ secrets.QA_ENDPOINT }}/${{ env.BRANCH_PATH }}/"
+        
