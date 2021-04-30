@@ -6,7 +6,7 @@ on:
 
 jobs:
   connect-vpn-build-qa:
-    name: install ubuntu
+    name: Build QA
     runs-on: ubuntu-latest
 
     steps:
@@ -34,7 +34,11 @@ jobs:
         host: ${{ secrets.QA_ENDPOINT }}
         username: ${{ secrets.QA_USER }}
         password: ${{ secrets.QA_PASSWORD }}
-        script: cd ${{ secrets.QA_FOLDER }} && git pull origin ${{ secrets.QA_BRANCH }} && composer install && composer dump-autoload
+        script: |
+          cd ${{ secrets.QA_FOLDER }} &&
+          git pull origin ${{ secrets.QA_BRANCH }} &&
+          composer install &&
+          composer dump-autoload
 
     - name: kill vpn
       if: always()

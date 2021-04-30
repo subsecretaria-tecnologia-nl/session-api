@@ -6,7 +6,7 @@ on:
 
 jobs:
   connect-vpn-build-prod:
-    name: install ubuntu
+    name: Build Production
     runs-on: ubuntu-latest
 
     steps:
@@ -34,7 +34,11 @@ jobs:
         host: ${{ secrets.PROD_ENDPOINT }}
         username: ${{ secrets.PROD_USER }}
         password: ${{ secrets.PROD_PASSWORD }}
-        script: cd ${{ secrets.PROD_FOLDER }} && git pull origin ${{ secrets.QA_BRANCH }} && composer install && composer dump-autoload
+        script: |
+          cd ${{ secrets.PROD_FOLDER }} &&
+          git pull origin ${{ secrets.QA_BRANCH }} &&
+          composer install &&
+          composer dump-autoload
 
     - name: kill vpn
       if: always()
