@@ -62,8 +62,6 @@ jobs:
         password: ${{ secrets.QA_PASSWORD }}
         script: |
           branchPath=${{ env.BRANCH_PATH }} &&
-          echo "$branchPath" &&
-          echo "${{ github.head_ref }}" &&
           cd ${{ secrets.QA_FOLDER }} &&
           cd .. &&
           if [ -d "$branchPath" ]; then rm -Rf $branchPath; fi &&
@@ -84,7 +82,8 @@ jobs:
           composer dump-autoload &&
           
           echo ${{ secrets.QA_PASSWORD }} | sudo -S chown -R nginx storage &&
-          echo ${{ secrets.QA_PASSWORD }} | sudo -S chmod -R 777 storage public
+          echo ${{ secrets.QA_PASSWORD }} | sudo -S chmod -R 777 storage public &&
+          echo "✅ Review App from branch \"${{ env.BRANCH_NAME }}\" was succesfully build"
 
     - name: kill vpn
       if: always()
