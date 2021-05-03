@@ -46,7 +46,7 @@ class Emailnotaryusers extends Command
         // obtener las listas pendientes de correo
         $pending = $this->pendientesEnvio();
         if($pending != 0){
-            \Log::stack("mailing")->info("TRYING TO SEND ".count($pending)." MESSAGES");
+            \Log::stack(["mailing"])->info("TRYING TO SEND ".count($pending)." MESSAGES");
             $proceso = $this->procesarEnvio($pending);
             // final del proceso
             $fin = $this->updateAnswers($proceso, $pending);
