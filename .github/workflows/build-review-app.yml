@@ -20,12 +20,12 @@ jobs:
         BRANCH=$(echo "$BRANCH" | sed "s/\.//g") &&
         BRANCH=$(echo "$BRANCH" | sed "s/\-$//g") &&
         echo "BRANCH_PATH=deployed-$BRANCH" >> $GITHUB_ENV &&
-        echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
+        echo "BRANCH_NAME=$BRANCH" >> $GITHUB_ENV
 
     - name: Test new env
       run: |
-        echo ${{ env.BRANCH_PATH }} &&
-        echo ${{ env.BRANCH_NAME }}
+        echo "BRANCH_PATH=${{ env.BRANCH_PATH }}" &&
+        echo "BRANCH_NAME=${{ env.BRANCH_NAME }}"
 
     - name: start deployment
       uses: bobheadxi/deployments@v0.4.3
@@ -62,7 +62,8 @@ jobs:
         password: ${{ secrets.QA_PASSWORD }}
         script: |
           branchPath=${{ env.BRANCH_PATH }} &&
-          echo "$branchPath" &&
+          echo "${{ secrets.QA_FOLDER }}/$branchPath" &&
+          echo "${{ secrets.URL_REPO }}" &&
           cd ${{ secrets.QA_FOLDER }} &&
           cd .. &&
           if [ -d "$branchPath" ]; then rm -Rf $branchPath; fi &&
