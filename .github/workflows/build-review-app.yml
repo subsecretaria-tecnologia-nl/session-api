@@ -62,8 +62,8 @@ jobs:
         password: ${{ secrets.QA_PASSWORD }}
         script: |
           branchPath=${{ env.BRANCH_PATH }} &&
-          echo "${{ secrets.QA_FOLDER }}/$branchPath" &&
-          echo "${{ secrets.URL_REPO }}" &&
+          echo "$branchPath" &&
+          echo "${{ github.head_ref }}" &&
           cd ${{ secrets.QA_FOLDER }} &&
           cd .. &&
           if [ -d "$branchPath" ]; then rm -Rf $branchPath; fi &&
