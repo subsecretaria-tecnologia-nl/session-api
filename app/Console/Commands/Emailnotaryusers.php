@@ -132,7 +132,7 @@ class Emailnotaryusers extends Command
             return [1];
         }catch( \Exception $e ){
             echo "Error: {$to}\n";
-            \Log::stack(['mailing'])->error("Error: {$to}\n");
+            \Log::stack(['mailing'])->error("Error: {$to}.\n".$e->getMessage()."\n\n");
             return [99, $e->getMessage()];
         }
     }
