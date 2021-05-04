@@ -64,13 +64,21 @@ jobs:
           branchPath=${{ env.BRANCH_PATH }} &&
           cd ${{ secrets.QA_FOLDER }} &&
           cd .. &&
-          if [ -d "$branchPath" ]; then rm -Rf $branchPath; fi &&
+          
+          if [ -d "$branchPath" ];
+          then
+            test -f "$branchPath/.env" && cp $branchPath/.env .env.$branchPath;
+            echo ${{ secrets.QA_PASSWORD }} | sudo -S rm -Rf $branchPath;
+          fi &&
+          
           git clone -b ${{ github.head_ref }} --single-branch ${{ secrets.URL_REPO }} $branchPath &&
           cd $branchPath &&
-          cp ${{ secrets.QA_FOLDER }}/.env .env &&
 
-          search_1="http:\/\/10.153.144.218\/payments-api" &&
-          search_2="APP_PREFIX=\"payments-api" &&
+          test -f "../.env.$branchPath" && cp ../.env.$branchPath .env;
+          ! test -f "../.env.$branchPath" && cp ${{ secrets.QA_FOLDER }}/.env .env;
+
+          search_1="http:\/\/10.153.144.218\/session-api" &&
+          search_2="APP_PREFIX=\"session-api" &&
           
           replace_1="http:\/\/10.153.144.218\/$branchPath" &&
           replace_2="APP_PREFIX=\"$branchPath" &&
