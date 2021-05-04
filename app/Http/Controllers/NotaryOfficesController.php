@@ -67,7 +67,7 @@ class NotaryOfficesController extends Controller
 
 					$notaryOffice->update([
 						"titular_id"=>$user_id,
-						"sat_constancy_file"=>$file["sat_constacia_"],
+						"sat_constancy_file"=>$file["sat_constancia_"],
 						"notary_constancy_file"=>$file["notaria_constancia_"]
 					]);
 					$updateUser = User::where("id", $id_titular_anterior)
