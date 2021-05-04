@@ -56,7 +56,7 @@ jobs:
           cd ${{ secrets.QA_FOLDER }} &&
           cd .. &&
           if [ -d "$branchPath" ]; then rm -Rf $branchPath; fi &&
-          echo "Branch '${{env.BRANCH_NAME}}' was successfully remove"
+          echo "✅ Review App from branch \"${{ env.BRANCH_NAME }}\" was succesfully remove"
 
     - name: kill vpn
       if: always()

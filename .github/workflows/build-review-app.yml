@@ -15,6 +15,7 @@ jobs:
     - name: Set env
       run: |
         BRANCH=$(echo "${{ github.head_ref }}" | sed "s/\//\-/g") &&
+        BRANCH=$(echo "$BRANCH" | sed "s/\_/\-/g") &&
         BRANCH=$(echo "$BRANCH" | sed "s/[0-9]*//g") &&
         BRANCH=$(echo "$BRANCH" | sed "s/\.//g") &&
         BRANCH=$(echo "$BRANCH" | sed "s/\-$//g") &&
@@ -23,8 +24,8 @@ jobs:
 
     - name: Test new env
       run: |
-        echo ${{ env.BRANCH_PATH }} &&
-        echo ${{ env.BRANCH_NAME }}
+        echo "BRANCH_PATH=${{ env.BRANCH_PATH }}" &&
+        echo "BRANCH_NAME=${{ env.BRANCH_NAME }}"
 
     - name: start deployment
       uses: bobheadxi/deployments@v0.4.3
@@ -61,7 +62,6 @@ jobs:
         password: ${{ secrets.QA_PASSWORD }}
         script: |
           branchPath=${{ env.BRANCH_PATH }} &&
-          echo "$branchPath" &&
           cd ${{ secrets.QA_FOLDER }} &&
           cd .. &&
           if [ -d "$branchPath" ]; then rm -Rf $branchPath; fi &&
@@ -82,7 +82,8 @@ jobs:
           composer dump-autoload &&
           
           echo ${{ secrets.QA_PASSWORD }} | sudo -S chown -R nginx storage &&
-          echo ${{ secrets.QA_PASSWORD }} | sudo -S chmod -R 777 storage public
+          echo ${{ secrets.QA_PASSWORD }} | sudo -S chmod -R 777 storage public &&
+          echo "✅ Review App from branch \"${{ env.BRANCH_NAME }}\" was succesfully build"
 
     - name: kill vpn
       if: always()
