@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\File;
 class NotaryOfficesController extends Controller
 {
 	public function createUsersNotary($id){
-		// return response()->json(request()->all());
+		return response()->json(request()->all());
 		if(request()->file){
 			$files= request()->file;
 		}
@@ -239,30 +239,33 @@ class NotaryOfficesController extends Controller
 	}
 
 	public function updateNotaryUsers($id, $user_id){
+		// dd(request()->users);
+		// return response()->json(request()->all());
 		$error = null;
 		$flag = null;
-		$users_notary = request()->all();
+		$users_notary = request()->users;
+		$files = request()->file;
 		$relation = ConfigUserNotaryOffice::where('user_id', $user_id)->where('notary_office_id', $id)->first();
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
 		$usern = User::where("id", $user_id)->first();
 		$status=$usern->status;
-		extract($users_notary);
-		unset($users_notary["reenvio"]); 
+		// extract($users_notary);
+		// unset($users_notary["reenvio"]); 
 		if(!$relation){
 			throw new ShowableException(401, "Sorry, user does not correspond to notary.");
 		}
 
-		if($users_notary["role_id"]==2){
-			unset($users_notary["sat_constancia_"], $users_notary["notaria_constancia_"]);	
+		// if($users_notary["role_id"]==2){
+		// 	unset($file["sat_constancia_"], $file["notaria_constancia_"]);	
 		
-		}
+		// }
 		$request = new Request($users_notary);
 		
 		try{
 			$userCtrl = new UsersController();
 			$u = $userCtrl->editSubUser($request);
 			if($u){	
-				if($reenvio =="true"){
+				if($users->$reenvio =="true"){
 					try {
 						$answer = $this->notifyTable($user_id, $users_notary["password"]);								
 						
@@ -418,7 +421,7 @@ class NotaryOfficesController extends Controller
 		foreach ($files as $key => $value) {
 			$file = $value;
 			$extension = $value->getClientOriginalExtension();
-			if($key==0){
+			if($key==0 || $key == "sat"){
 				$nombre = "sat_constancia_";
 			}else{
 				$nombre ="notaria_constancia_";
