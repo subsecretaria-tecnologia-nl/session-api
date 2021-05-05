@@ -265,7 +265,7 @@ class NotaryOfficesController extends Controller
 			$userCtrl = new UsersController();
 			$u = $userCtrl->editSubUser($request);
 			if($u){	
-				if($users->$reenvio =="true"){
+				if($users->reenvio =="true"){
 					try {
 						$answer = $this->notifyTable($user_id, $users_notary["password"]);								
 						
