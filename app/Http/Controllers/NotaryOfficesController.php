@@ -421,11 +421,20 @@ class NotaryOfficesController extends Controller
 		foreach ($files as $key => $value) {
 			$file = $value;
 			$extension = $value->getClientOriginalExtension();
-			if($key==0 || $key == "sat"){
-				$nombre = "sat_constancia_";
+			if(is_string($key)){
+				if($key == "sat"){
+					$nombre = "sat_constancia_";
+				}else{
+					$nombre ="notaria_constancia_";
+				}
 			}else{
-				$nombre ="notaria_constancia_";
+				if($key==0){
+					$nombre = "sat_constancia_";
+				}else{
+					$nombre ="notaria_constancia_";
+				}
 			}
+			
 			$attach = $nombre.$id."_".$notaryOffice->notary_number.".".$extension;
 			$data[$nombre]=$attach;
 			\Storage::disk('local')->put($attach,  File::get($file));
