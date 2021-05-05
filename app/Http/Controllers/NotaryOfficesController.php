@@ -239,12 +239,12 @@ class NotaryOfficesController extends Controller
 	}
 
 	public function updateNotaryUsers($id, $user_id){
-		// dd(request()->users);
-		// return response()->json(request()->all());
+		if(request()->file){
+			$files= request()->file;
+		}
 		$error = null;
 		$flag = null;
 		$users_notary = request()->users;
-		$files = request()->file;
 		$relation = ConfigUserNotaryOffice::where('user_id', $user_id)->where('notary_office_id', $id)->first();
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
 		$usern = User::where("id", $user_id)->first();
@@ -426,7 +426,7 @@ class NotaryOfficesController extends Controller
 			}else{
 				$nombre ="notaria_constancia_";
 			}
-			$attach = $nombre.$id."_".$notaryOffice->number_notary.".".$extension;
+			$attach = $nombre.$id."_".$notaryOffice->notary_number.".".$extension;
 			$data[$nombre]=$attach;
 			\Storage::disk('local')->put($attach,  File::get($file));
 		}
