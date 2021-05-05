@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\File;
 class NotaryOfficesController extends Controller
 {
 	public function createUsersNotary($id){
-		return response()->json(request()->all());
 		if(request()->file){
 			$files= request()->file;
 		}
