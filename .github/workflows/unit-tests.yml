@@ -8,6 +8,7 @@ on:
 
 jobs:
   php-unit-test:
+    name: PHP Unit Testing
     runs-on: ubuntu-latest
 
     steps:
