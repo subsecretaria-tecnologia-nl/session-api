@@ -1,4 +1,4 @@
-name: PHP Unit Tests
+name: php-unit-test
 on:
   push:
     branches-ignore: 
