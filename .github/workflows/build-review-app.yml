@@ -62,17 +62,23 @@ jobs:
         password: ${{ secrets.QA_PASSWORD }}
         script: |
           branchPath=${{ env.BRANCH_PATH }} &&
-          echo "${{ secrets.QA_FOLDER }}/$branchPath" &&
-          echo "${{ secrets.URL_REPO }}" &&
           cd ${{ secrets.QA_FOLDER }} &&
           cd .. &&
-          if [ -d "$branchPath" ]; then rm -Rf $branchPath; fi &&
+          
+          if [ -d "$branchPath" ];
+          then
+            test -f "$branchPath/.env" && cp $branchPath/.env .env.$branchPath;
+            echo ${{ secrets.QA_PASSWORD }} | sudo -S rm -Rf $branchPath;
+          fi &&
+          
           git clone -b ${{ github.head_ref }} --single-branch ${{ secrets.URL_REPO }} $branchPath &&
           cd $branchPath &&
-          cp ${{ secrets.QA_FOLDER }}/.env .env &&
 
-          search_1="http:\/\/10.153.144.218\/payments-api" &&
-          search_2="APP_PREFIX=\"payments-api" &&
+          test -f "../.env.$branchPath" && cp ../.env.$branchPath .env;
+          ! test -f "../.env.$branchPath" && cp ${{ secrets.QA_FOLDER }}/.env .env;
+
+          search_1="http:\/\/10.153.144.218\/session-api" &&
+          search_2="APP_PREFIX=\"session-api" &&
           
           replace_1="http:\/\/10.153.144.218\/$branchPath" &&
           replace_2="APP_PREFIX=\"$branchPath" &&
@@ -84,7 +90,8 @@ jobs:
           composer dump-autoload &&
           
           echo ${{ secrets.QA_PASSWORD }} | sudo -S chown -R nginx storage &&
-          echo ${{ secrets.QA_PASSWORD }} | sudo -S chmod -R 777 storage public
+          echo ${{ secrets.QA_PASSWORD }} | sudo -S chmod -R 777 storage public &&
+          echo "✅ Review App from branch \"${{ env.BRANCH_NAME }}\" was succesfully build"
 
     - name: kill vpn
       if: always()
