@@ -1,4 +1,4 @@
-name: PHP Unit Tests
+name: php-unit-test
 on:
   push:
     branches-ignore: 
@@ -8,6 +8,7 @@ on:
 
 jobs:
   php-unit-test:
+    name: PHP Unit Testing
     runs-on: ubuntu-latest
 
     steps:
