@@ -62,19 +62,10 @@
 				"users" : {
 					"type" : "array",
 					"items" : { "$ref" : "#/definitions/users" }
-				},
-				"sat_constancy_file" : {
-					"type" : "string",
-					"pattern" : "^data:application/pdf;base64,(.+)$",
-					"minLength" : 34
-				},
-				"notary_constancy_file" : {
-					"type" : "string",
-					"pattern" : "^data:application/pdf;base64,(.+)$",
-					"minLength" : 34
 				}
 			},
-			"required" : [ "notary_number", "phone", "email", "street", "number", "zip", "titular", "sat_constancy_file", "notary_constancy_file" ]
+			"required" : [ "notary_number", "phone", "email", "street", "number", "zip", "titular"]
+
 		}
 	},
 	"required" : ["notary_office"],

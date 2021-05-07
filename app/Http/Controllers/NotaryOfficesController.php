@@ -248,16 +248,11 @@ class NotaryOfficesController extends Controller
 		$notaryOffice =NotaryOffice::where("id", $id)->first();
 		$usern = User::where("id", $user_id)->first();
 		$status=$usern->status;
-		// extract($users_notary);
-		// unset($users_notary["reenvio"]); 
+
 		if(!$relation){
 			throw new ShowableException(401, "Sorry, user does not correspond to notary.");
 		}
 
-		// if($users_notary["role_id"]==2){
-		// 	unset($file["sat_constancia_"], $file["notaria_constancia_"]);	
-		
-		// }
 		$request = new Request($users_notary);
 		
 		try{
@@ -279,7 +274,6 @@ class NotaryOfficesController extends Controller
 				if($users_notary["role_id"]==2){
 					if($status==0){	
 						$file=$this->savefiles($files, $notaryOffice->id);
-						// $file=$this->savefiles($sat_constancy_file, $notary_constancy_file, $notaryOffice->notary_number);	
 						$notary_office["sat_constancy_file"]=$file["sat_constancia_"];
 						$notary_office["notary_constancy_file"]=$file["notaria_constancia_"];
 						$notary_office["titular_id"]=$user_id;	
@@ -293,26 +287,22 @@ class NotaryOfficesController extends Controller
 						$updateUser = User::where("id", $id_titular_anterior)->update(["status"=> 0]); 
 					
 					}else{
-						if(isset($sat_constancy_file) || isset($notary_constancy_file)){
-							$sat_constancy_file = isset($sat_constancy_file)==true ? $sat_constancy_file : "";
-							$notary_constancy_file = isset($notary_constancy_file)==true ? $notary_constancy_file : "";
-							// $file=$this->savefiles($sat_constancy_file, $notary_constancy_file, $notaryOffice->notary_number);
-							$file=$this->savefiles($files, $notaryOffice->id);
-							$notary_office["sat_constancy_file"]=$file["sat_constancia_"];
-							$notary_office["notary_constancy_file"]=$file["notaria_constancia_"];	
-							if(isset($notaryOffice->titular_id)){
-								$id_titular_anterior = $notaryOffice->titular_id;
-								$updateUser = User::where("id", $id_titular_anterior)->update(["status"=> 0]); 
-							}
-							if(!empty($notaryOffice->substitute_id) && $notaryOffice->substitute_id==$user_id){
-								$notaryOffice->update(["substitute_id"=>0]);
-							}
-														
-							$notary_office["titular_id"]=$user_id;
-							$notaryOffice->update($notary_office);
-						}	
+						$file=$this->savefiles($files, $notaryOffice->id);
+						$notary_office["sat_constancy_file"]=$file["sat_constancia_"];
+						$notary_office["notary_constancy_file"]=$file["notaria_constancia_"];	
+						if(isset($notaryOffice->titular_id)){
+							$id_titular_anterior = $notaryOffice->titular_id;
+							$updateUser = User::where("id", $id_titular_anterior)->update(["status"=> 0]); 
+						}
+						if(!empty($notaryOffice->substitute_id) && $notaryOffice->substitute_id==$user_id){
+							$notaryOffice->update(["substitute_id"=>0]);
+						}
+													
+						$notary_office["titular_id"]=$user_id;
+						$notaryOffice->update($notary_office);
+					}	
 						
-					}
+					
 				}		
 
 				
