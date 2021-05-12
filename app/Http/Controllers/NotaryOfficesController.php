@@ -330,8 +330,8 @@ class NotaryOfficesController extends Controller
 		if($error){
 			throw $error;
 		} 
-	
-		return $response;
+		return response()->json($response)
+		// return $response;
 
 
 	}
