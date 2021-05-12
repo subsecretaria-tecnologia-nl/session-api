@@ -302,6 +302,17 @@ class NotaryOfficesController extends Controller
 														
 							$notary_office["titular_id"]=$user_id;
 							$notaryOffice->update($notary_office);
+						}else{
+							if(isset($notaryOffice->titular_id) && $notaryOffice->titular_id!=$user_id){
+								$id_titular_anterior = $notaryOffice->titular_id;
+								$updateUser = User::where("id", $id_titular_anterior)->update(["status"=> 0]); 
+							}
+							if(!empty($notaryOffice->substitute_id) && $notaryOffice->substitute_id!=$user_id){
+								$notaryOffice->update(["substitute_id"=>0]);
+							}
+														
+							$notary_office["titular_id"]=$user_id;
+							$notaryOffice->update($notary_office);
 						}	
 						
 					}
