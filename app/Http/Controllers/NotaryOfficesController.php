@@ -309,7 +309,7 @@ class NotaryOfficesController extends Controller
 				
 
 				if($users_notary["role_id"]==5){
-					if(!empty($notaryOffice->substitute_id)){	
+					if(!empty($notaryOffice->substitute_id)&& $notaryOffice->substitute_id!=$user_id){	
 						$id_suplente_anterior = $notaryOffice->substitute_id;
 						$updateUser = User::where("id", $id_suplente_anterior)
 						->update(["status" => 0]);					
