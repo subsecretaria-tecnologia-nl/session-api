@@ -272,7 +272,7 @@ class NotaryOfficesController extends Controller
 
 
 				if($users_notary["role_id"]==2){
-					if($files){
+					if(isset($files)){
 						$file=$this->savefiles($files, $notaryOffice->id);
 						$notary_office["sat_constancy_file"]=$file["sat_constancia_"];
 						$notary_office["notary_constancy_file"]=$file["notaria_constancia_"];
