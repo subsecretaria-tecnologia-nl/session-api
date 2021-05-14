@@ -272,10 +272,13 @@ class NotaryOfficesController extends Controller
 
 
 				if($users_notary["role_id"]==2){
-					if($status==0){	
+					if(isset($files)){
 						$file=$this->savefiles($files, $notaryOffice->id);
 						$notary_office["sat_constancy_file"]=$file["sat_constancia_"];
 						$notary_office["notary_constancy_file"]=$file["notaria_constancia_"];
+					}
+					if($status==0){							
+						
 						$notary_office["titular_id"]=$user_id;	
 
 						$id_titular_anterior = $notaryOffice->titular_id;
@@ -287,10 +290,8 @@ class NotaryOfficesController extends Controller
 						$updateUser = User::where("id", $id_titular_anterior)->update(["status"=> 0]); 
 					
 					}else{
-						$file=$this->savefiles($files, $notaryOffice->id);
-						$notary_office["sat_constancy_file"]=$file["sat_constancia_"];
-						$notary_office["notary_constancy_file"]=$file["notaria_constancia_"];	
-						if(isset($notaryOffice->titular_id)){
+				
+						if(isset($notaryOffice->titular_id) && $notaryOffice->titular_id!=$user_id){
 							$id_titular_anterior = $notaryOffice->titular_id;
 							$updateUser = User::where("id", $id_titular_anterior)->update(["status"=> 0]); 
 						}
@@ -308,7 +309,7 @@ class NotaryOfficesController extends Controller
 				
 
 				if($users_notary["role_id"]==5){
-					if(!empty($notaryOffice->substitute_id)){	
+					if(!empty($notaryOffice->substitute_id)&& $notaryOffice->substitute_id!=$user_id){	
 						$id_suplente_anterior = $notaryOffice->substitute_id;
 						$updateUser = User::where("id", $id_suplente_anterior)
 						->update(["status" => 0]);					
