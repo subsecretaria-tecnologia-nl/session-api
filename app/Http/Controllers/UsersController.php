@@ -109,7 +109,8 @@ class UsersController extends Controller
 		$user = JWTAuth::user();
 		$isNotary = $user->isnotary()->get()->first();
 		if($isNotary){
-			$user->notary = NotaryOffice::where("id", $isNotary->id)->first();
+			$user->notary = NotaryOffice::where("id", $isNotary->id)
+			->with(["titular", "substitute"])->first();
 		}
 
 		if (count((array)$user) > 0) {
